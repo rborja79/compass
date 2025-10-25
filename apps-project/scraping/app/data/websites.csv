@@ -1,0 +1,13 @@
+id,domain,url,tree,description,category_id,created_at,updated_at,institution
+1,unisabana.edu.co,https://www.unisabana.edu.co,,"Universidad de la sabana, se encuentran programas educativos.",1,2025-10-13 11:39:53.000000,2025-10-15 20:02:38.802508,Universidad de La Sabana
+2,uniandes.edu.co,https://www.uniandes.edu.co,,Universidad de los Andes se encuentran en ofertas educativas,1,2025-10-14 11:28:21.000000,2025-10-15 20:02:38.750721,Universidad de los Andes
+3,elempleo.com,https://www.elempleo.com/co/ofertas-empleo/,,"---
+📌 Instrucciones:
+1. Busca el elemento con la clase `.js-total-results` y extrae ese número como total_jobs.
+2. Usa siempre `jobs_per_page = 50`.
+3. Calcula total_pages = ceil(total_jobs / 50). Si total_pages > 5, usa 5.",2,2025-10-14 17:59:44.000000,2025-10-15 20:03:28.855687,elempleo.com
+4,linkedin.com,https://www.linkedin.com/jobs/search/?geoId=100876405&origin=JOB_COLLECTION_PAGE_LOCATION_HISTORY&refresh=true,,"---
+📌 Instrucciones:
+1. Busca el elemento con la clase `.jobs-search-results-list__subtitle ` y extrae ese número como total_jobs.
+2. Usa siempre `jobs_per_page = 50`.
+3. Calcula total_pages = ceil(total_jobs / 50). Si total_pages > 5, usa 5.",2,2025-10-19 20:05:42.000000,2025-10-19 20:05:44.000000,linkedin.com

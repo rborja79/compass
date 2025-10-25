@@ -1,0 +1,506 @@
+{
+  "name": "Extract Academic Data",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1936,
+        -16
+      ],
+      "id": "06c23f9a-9426-4c67-8e62-1916c3972dc5",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -1392,
+        176
+      ],
+      "id": "e632aa61-ad23-4942-b030-1568375e4afc",
+      "name": "Loop Over Pages"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "dataPropertyName": "html",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "clean_text",
+              "cssSelector": "body",
+              "skipSelectors": "script, style, nav, footer, img"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        -1232,
+        448
+      ],
+      "id": "bf562634-fe26-4473-a972-14c93d2e29da",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu única tarea es generar un JSON válido y bien formado.\n\nResponde ÚNICAMENTE con un JSON plano que siga este esquema:\n{\n  \"program_name\": \"\",\n  \"level\": \"\",\n  \"modality\": \"\",\n  \"duration\": \"\",\n  \"price\": \"\",\n  \"subjects\": [],\n  \"description\": \"\",\n  \"classification\": \"relevant\" | \"potencial\" | \"irrelevant\"\n}\n\n⚠️ NO uses comillas escapadas, NO encierres el JSON en otro objeto, \nNO pongas la respuesta dentro de 'output' ni 'text'.\n\nReglas:\n1. Responde ÚNICAMENTE con JSON válido. ❌ No uses backticks, markdown ni caracteres escapados.\n2. Si no hay nombre de programa académico identificable, responde:\n   {\"classification\": \"irrelevant\"}\n3. Si el texto solo contiene menús, enlaces o información institucional, responde:\n   {\"classification\": \"irrelevant\"}\n4. Para clasificar como \"relevant\", el texto debe contener:\n   - Un nombre de programa académico, y\n   - los campos: level, modality, duration, price, description y subjects.\n5. Si hay información parcial (por ejemplo: solo hay nombre del programa, o modalidad, o nivel):\n   - Clasifica como \"potencial\".\n   - Coloca \"multiple\" en level/modality si hay ambigüedad.\n   - Coloca en subjects posibles nombres de carreras detectados aunque no estén completos.\n6. Si faltan algunos campos, déjalos vacíos (\"\") o con array vacío [].\n7. No inventes información.\n8. La respuesta debe estar completamente en español.\n9. \"classification\" SOLO puede ser: relevant, potencial o irrelevant.\n10. NO inventes. Copia literalmente valores del texto cuando existan.\n\n⚠️ Tu salida debe ser JSON puro:\n- No encierres el JSON en comillas.\n- No uses caracteres escapados.\n- No uses markdown.\n\nEjemplo correcto:\n{\n  \"program_name\":\"Maestría en Filosofía\",\n  \"level\":\"Maestría\",\n  \"modality\":\"Virtual\",\n  \"duration\":\"3 semestres\",\n  \"price\":\"9.585.000 / 2305 USD aprox. semestral\",\n  \"subjects\":[\n    \"Epistemología de la Investigación Interdisciplinar\",\n    \"Preguntar Filosófico\"\n  ],\n  \"description\":\"La Maestría en Filosofía desafía a pensar críticamente...\",\n  \"classification\":\"relevant\"\n}\n\nEjemplo de salida para irrelevant:\n{\n  \"program_name\": \"\",\n  \"level\": \"\",\n  \"modality\": \"\",\n  \"duration\": \"\",\n  \"price\": \"\",\n  \"subjects\": [],\n  \"description\": \"\",\n  \"classification\": \"irrelevant\"\n}\n\nEjemplo de salida para parcial:\n{\n  \"program_name\":\"Multiple\",\n  \"level\":\"multiple\",\n  \"modality\":\"multiple\",\n  \"duration\":\"\",\n  \"price\":\"\",\n  \"subjects\":[\n    \"Potencial\",\n  ],\n  \"description\":\"Paginas potenciales de tener informacion de un programa.\",\n  \"classification\":\"potencial\"\n}\n\nDescripcion Website:\n{{ $('Loop Over Pages').item.json.description }}\n\nTexto a analizar:\n{{ $json.clean_text }}",
+        "hasOutputParser": true,
+        "batching": {
+          "batchSize": 5
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -672,
+        224
+      ],
+      "id": "05445d47-a36e-46a3-8697-683768b59514",
+      "name": "Basic LLM Chain",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "model": "gpt-oss:20b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -672,
+        704
+      ],
+      "id": "b3e44c20-b88d-44c1-8d54-07927d249513",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "NRBuDiB0EZJ03bWb",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT program_pages_raw.id, institution, domain, program_pages_raw.url, html, websites.description\nFROM program_pages_raw\nINNER JOIN websites ON program_pages_raw.website_id = websites.id\nWHERE status = 'scraped' LIMIT 1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1648,
+        176
+      ],
+      "id": "82a3525e-b296-472c-acac-9b4a65e1ceb6",
+      "name": "Get Raw Pages",
+      "credentials": {
+        "postgres": {
+          "id": "XjR5TJfdQN2TCi6n",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO program_records_structured (\n  page_id, university, domain, url, program_name, level, modality,\n  duration, price, subjects, description, extracted_at, updated_at\n)\nVALUES (\n  '{{ $json.id }}',\n  '{{ $json.institution }}',\n  '{{ $json.domain }}',\n  '{{ $json.url }}',\n  '{{ $json.program_name }}',\n  '{{ $json.level }}',\n  '{{ $json.modality }}',\n  '{{ $json.duration }}',\n  '{{ $json.price }}',\n  '{{ JSON.stringify($json.subjects) }}',\n  '{{ $json.description }}',\n  NOW(), \n  NOW())\nON CONFLICT (page_id) DO UPDATE\nSET\n  domain = EXCLUDED.domain,\n  url = EXCLUDED.url,\n  program_name = EXCLUDED.program_name,\n  level = EXCLUDED.level,\n  modality = EXCLUDED.modality,\n  duration = EXCLUDED.duration,\n  price = EXCLUDED.price,\n  subjects = EXCLUDED.subjects,\n  description = EXCLUDED.description,\n  updated_at = NOW()\nRETURNING page_id AS id, 'relevant' AS classification;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        224,
+        -48
+      ],
+      "id": "6e8c3f31-d2f0-4b7e-86b6-c5b7a9fa342a",
+      "name": "Insert Records Structured",
+      "alwaysOutputData": false,
+      "credentials": {
+        "postgres": {
+          "id": "XjR5TJfdQN2TCi6n",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.classification === 'relevant' || $json.classification === 'potencial' }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "id": "78e2335c-6ec1-4b89-ac1d-5f38896e1fda"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "relevant"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "9ba30399-bd6a-4745-af73-5622026354eb",
+                    "leftValue": "={{ $json.classification }}",
+                    "rightValue": "=irrelevant",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "irrelevant"
+            }
+          ]
+        },
+        "options": {
+          "allMatchingOutputs": true
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -64,
+        224
+      ],
+      "id": "b94833c7-c57d-4adf-9732-a6630089f2b8",
+      "name": "Switch",
+      "executeOnce": false,
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE program_pages_raw\nSET status = CASE\n    WHEN '{{ $json.classification }}' = 'relevant' THEN 'classified'\n    WHEN '{{ $json.classification }}' = 'potencial' THEN 'potencial'\n    ELSE 'irrelevant'\nEND,\nupdated_at = NOW()\nWHERE id = '{{ $json.id }}';",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        560,
+        464
+      ],
+      "id": "d61debbf-4c14-4c41-aaa8-4d9c1c6ff421",
+      "name": "Update Pages Status",
+      "credentials": {
+        "postgres": {
+          "id": "XjR5TJfdQN2TCi6n",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"program_name\": { \"type\": \"string\" },\n    \"level\": { \"type\": \"string\" },\n    \"modality\": { \"type\": \"string\" },\n    \"duration\": { \"type\": \"string\" },\n    \"price\": { \"type\": \"string\" },\n    \"subjects\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n    \"description\": { \"type\": \"string\" },\n    \"classification\": { \"type\": \"string\", \"enum\": [\"relevant\", \"potencial\", \"irrelevant\"] }\n  },\n  \"required\": [\"classification\"]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -528,
+        704
+      ],
+      "id": "11435c75-0d2a-410f-810a-fd3aa1b4b18f",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0bf2484c-ce4a-4789-ae9c-c3be61defe00",
+              "leftValue": "={{ $json.clean_text !== \"\" }}",
+              "rightValue": "=",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1024,
+        448
+      ],
+      "id": "3870da71-24f8-45d4-af7e-730ea6cc73e6",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT page_id AS id, 'relevant' AS classification\n  FROM program_records_structured \n  WHERE page_id = '{{ $('Switch').item.json.id }}';",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        432,
+        -48
+      ],
+      "id": "4a69e699-20a4-4aff-835f-3b28a06335fc",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "XjR5TJfdQN2TCi6n",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nfunction coerceToObject(any) {\n  if (any && typeof any === 'object') return any;\n  if (typeof any === 'string') {\n    const cleaned = any.replace(/^```json|^```|```$/g, '').trim();\n    try { return JSON.parse(cleaned); } catch (e) {}\n  }\n  return {};\n}\n\nfunction normalizeSubjects(subjects) {\n  if (!subjects) return [];\n  if (Array.isArray(subjects)) return subjects;\n\n  // Si viene como string (por ejemplo separado por comas)\n  if (typeof subjects === 'string') {\n    return subjects\n      .split(',')\n      .map(s => s.trim())\n      .filter(s => s.length > 0);\n  }\n\n  return [];\n}\n\nfunction normalizeDescription(desc) {\n  if (!desc || typeof desc !== 'string') return \"\";\n\n  return desc\n    .replace(/'/g, \"''\")          // Escapa comillas simples para evitar errores en SQL\n    .replace(/[\\r\\n]+/g, ' ')     // Reemplaza saltos de línea por espacios\n    .replace(/\\s+/g, ' ')         // Colapsa espacios múltiples\n    .trim();\n}\n\nconst out = items.map(item => {\n  let src = item.json?.output ?? item.json?.result ?? item.json?.text ?? item.json ?? {};\n  src = coerceToObject(src);\n\n  const pageData = $('Loop Over Pages').first().json;\n\n  const base = {\n    id: pageData.id,\n    institution: pageData.institution,\n    domain: pageData.domain,\n    url: pageData.url,\n    program_name: src.program_name || \"\",\n    level: src.level || \"\",\n    modality: src.modality || \"\",\n    duration: src.duration || \"\",\n    price: src.price || \"\",\n    subjects: normalizeSubjects(src.subjects),\n    description: normalizeDescription(src.description),\n    classification: src.classification || \"irrelevant\",\n  };\n\n  return { json: base };\n});\n\nreturn out;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -304,
+        224
+      ],
+      "id": "791c2c7c-572b-4dc6-99c1-bc1afc74e95f",
+      "name": "Format LLM Output"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nfunction coerceToObject(any) {\n  if (any && typeof any === 'object') return any;\n  if (typeof any === 'string') {\n    const cleaned = any.replace(/^```json|^```|```$/g, '').trim();\n    try { return JSON.parse(cleaned); } catch (e) {}\n  }\n  return {};\n}\n\nfunction normalizeSubjects(subjects) {\n  if (!subjects) return [];\n  if (Array.isArray(subjects)) return subjects;\n\n  // Si viene como string (por ejemplo separado por comas)\n  if (typeof subjects === 'string') {\n    return subjects\n      .split(',')\n      .map(s => s.trim())\n      .filter(s => s.length > 0);\n  }\n\n  return [];\n}\n\nconst out = items.map(item => {\n\n  const pageData = $('Loop Over Pages').first().json;\n\n  const base = {\n    id: pageData.id,\n    institution: pageData.institution,\n    domain: pageData.domain,\n    url: pageData.url,\n    program_name: \"\",\n    level: \"\",\n    modality: \"\",\n    duration: \"\",\n    price: \"\",\n    subjects: [],\n    description: \"\",\n    classification: \"irrelevant\",\n  };\n\n  return { json: base };\n});\n\nreturn out;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -800,
+        464
+      ],
+      "id": "b965945f-e0a6-45cf-8f24-649685f6cce1",
+      "name": "Format Irrelevant Output"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Get Raw Pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Pages": {
+      "main": [
+        [],
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Format LLM Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Raw Pages": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Records Structured": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Insert Records Structured",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update Pages Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Pages Status": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format Irrelevant Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Update Pages Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format LLM Output": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Irrelevant Output": {
+      "main": [
+        [
+          {
+            "node": "Update Pages Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5bbd7a09-b465-4dde-9a44-a535d949645b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ace676532ce958726b0c4ffedc40ba8ecf285de3dec650ceeb8e8d1bd3844dec"
+  },
+  "id": "ulH0IExxm6YukRpy",
+  "tags": []
+}

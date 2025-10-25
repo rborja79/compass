@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+psycopg2-binary
+fake-useragent
+cloudscraper
+tldextract
+beautifulsoup4
+requests
+gunicorn
+pandas
+dotenv
+sqlalchemy

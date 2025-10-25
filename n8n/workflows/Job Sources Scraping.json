@@ -1,0 +1,164 @@
+{
+  "name": "Job Sources Scraping",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://scraper_service:8000/start",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "muddan-nuvvuh-7zyvhY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "website_id",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "name": "max_depth",
+              "value": "2"
+            },
+            {
+              "name": "category",
+              "value": "={{ $json.category_id }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 900000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        320
+      ],
+      "id": "5754e850-f3d4-4c75-b89a-3da4ad36da8e",
+      "name": "HTTP Request",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -304,
+        144
+      ],
+      "id": "b8ed7adc-431a-404b-ac3e-fff5e12a74e8",
+      "name": "Loop Over Websites"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, domain, url, description, category_id \n  FROM websites \n  WHERE category_id = 2 \n  ORDER BY id DESC",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -512,
+        144
+      ],
+      "id": "9ad4b76b-8a42-4974-ad0a-3678027c75ad",
+      "name": "Get Websites",
+      "credentials": {
+        "postgres": {
+          "id": "XjR5TJfdQN2TCi6n",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                6
+              ]
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -736,
+        144
+      ],
+      "id": "ec449f68-b71c-4cef-8522-2f2fbd0ac041",
+      "name": "Schedule Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Websites",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Websites": {
+      "main": [
+        [],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Websites": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Websites",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Websites",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "87a4eccb-15d0-4cd2-9994-0f9568ce5c06",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ace676532ce958726b0c4ffedc40ba8ecf285de3dec650ceeb8e8d1bd3844dec"
+  },
+  "id": "hXDn8XLsLVbyRzit",
+  "tags": []
+}

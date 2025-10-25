@@ -1,0 +1,957 @@
+{
+  "name": "Jobs Scraping",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1232,
+        400
+      ],
+      "id": "fc2af629-81d3-4a8d-b652-94d6e0938a1e",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT websites.id, domain, url, description, COALESCE(total_results_selector, 'body') AS total_results_selector, websites.category_id, \n  COALESCE(pagination_pattern, 'http://fakeurl.com') AS pagination_pattern,\n  COALESCE(link_selector, 'body') AS link_selector,\n  COALESCE(link_pattern, 'http://fakeurl.com') AS link_pattern,\n  COALESCE(job_data_selector, '') AS job_data_selector,\n  COALESCE(job_detail_selector, '') AS job_detail_selector,\n  jobs_per_page\n  FROM websites \n  LEFT JOIN website_config ON  websites.id = website_config.website_id\n  WHERE category_id = 2 \n  ORDER BY websites.id DESC",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1008,
+        240
+      ],
+      "id": "865bdec8-1f2a-431c-a334-ae1fe1f645fd",
+      "name": "Get Websites",
+      "credentials": {
+        "postgres": {
+          "id": "XjR5TJfdQN2TCi6n",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://scraper_service:8000/flaresolver",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "muddan-nuvvuh-7zyvhY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "=url",
+              "value": "={{ $json.url }}"
+            },
+            {
+              "name": "cmd",
+              "value": "request.get"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -384,
+        256
+      ],
+      "id": "a868f15e-10cd-421f-ac8e-1cf7ab48c2f2",
+      "name": "Get Main Page"
+    },
+    {
+      "parameters": {
+        "model": "gpt-oss:20b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmOllama",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        464
+      ],
+      "id": "ced14e62-d0bf-4a3b-829b-1a440dafd6ca",
+      "name": "Ollama Model"
+    },
+    {
+      "parameters": {
+        "jsCode": "const totalPages = Math.ceil(($input.first().json.output.total_jobs/$('Get Websites').first().json.jobs_per_page));\nconst pattern = $('Get Websites').first().json.pagination_pattern;\nconst urls = [];\nfor (let i = 1; i <= totalPages; i++) {\n  urls.push(pattern.replace(\"{page}\", i));\n}\nreturn { ...$json, pagination_urls: urls };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        272,
+        256
+      ],
+      "id": "a9f7bba5-a94d-45d4-8922-b864092fc093",
+      "name": "Generate ULRs"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "dataPropertyName": "html",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "url",
+              "cssSelector": "={{ $('Get Websites').item.json.link_selector }}",
+              "returnValue": "attribute",
+              "attribute": "href",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        -192,
+        608
+      ],
+      "id": "a42f5a1b-3a18-4599-87fb-c47ab6fd566b",
+      "name": "Get Link By CSS Selector"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://scraper_service:8000/flaresolver",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "muddan-nuvvuh-7zyvhY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json.pagination_urls }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -384,
+        608
+      ],
+      "id": "0840a2c1-3526-4271-9300-c7bd5efafbf7",
+      "name": "Get Search Page"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "dataPropertyName": "solution.response",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "clean_text",
+              "cssSelector": "={{ $('Loop Over Websites').item.json.total_results_selector }}",
+              "returnValue": "html"
+            }
+          ]
+        },
+        "options": {
+          "cleanUpText": true
+        }
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        -208,
+        256
+      ],
+      "id": "5ab9d9c8-6c58-4031-abd9-044114e3921e",
+      "name": "Get Total Selector"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "url",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        32,
+        608
+      ],
+      "id": "33b7dd76-b788-45f3-b1d0-eed11cf2b9f4",
+      "name": "Split URLs"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "pagination_urls",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        512,
+        256
+      ],
+      "id": "49d59c88-b616-49e3-ab4e-4a91c10abb7d",
+      "name": "Split Paginations"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 🔸 Define el dominio base dinámico\nconst baseUrl = $('Get Websites').first().json.link_pattern;  \n\n// 🔸 Set para eliminar duplicados al final\nconst normalizedUrls = new Set();\n\n// 🔸 Recorremos todos los items que llegan al nodo\nfor (const item of items) {\n  let url = item.json.url.trim();\n\n  // Si ya viene completa (http...), la dejamos igual\n  if (url.startsWith('http')) {\n    normalizedUrls.add(url);\n    continue;\n  }\n\n  // Si es relativa (ej. /co/ofertas...), concatenamos con baseUrl\n  // Removemos posibles slashes duplicados\n  let finalUrl = `${baseUrl.replace(/\\/$/, '')}/${url.replace(/^\\//, '')}`;\n  normalizedUrls.add(finalUrl);\n}\n\n// 🔸 Convertimos el Set a array de objetos para seguir el flujo n8n\nreturn Array.from(normalizedUrls).map(url => ({ json: { url } }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        192,
+        608
+      ],
+      "id": "b62de938-4f7b-4473-91bd-43b730493ebf",
+      "name": "Fix Jobs URLs"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://scraper_service:8000/scrape",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "muddan-nuvvuh-7zyvhY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $('Loop Over Job Page').item.json.url }}"
+            },
+            {
+              "name": "max_depth",
+              "value": "0"
+            },
+            {
+              "name": "category",
+              "value": "2"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        48,
+        896
+      ],
+      "id": "4ce491ef-19c4-4b64-813e-f69089390e36",
+      "name": "Get Job Page",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT COUNT(1) FROM job_pages_raw WHERE url = '{{ $json.url }}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -272,
+        896
+      ],
+      "id": "7c813589-541a-4887-a76c-fbcb516877b3",
+      "name": "URL Verification",
+      "executeOnce": false,
+      "credentials": {
+        "postgres": {
+          "id": "XjR5TJfdQN2TCi6n",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.count }}",
+                    "rightValue": "0",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "659debeb-fd85-486a-9538-8e280be0c250"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "08b7f07b-8646-4255-9bb1-0749236c6b3b",
+                    "leftValue": "={{ $json.count }}",
+                    "rightValue": "1",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -112,
+        1136
+      ],
+      "id": "44295555-5481-445f-b5a1-cebaad22d184",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -592,
+        592
+      ],
+      "id": "9593a788-c861-4169-ae3b-5b034c57c751",
+      "name": "Loop Over Search Pages"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -544,
+        880
+      ],
+      "id": "0ea7d27c-5504-4d7a-bb8b-1b153180d0ac",
+      "name": "Loop Over Job Page"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -576,
+        240
+      ],
+      "id": "b88d9610-9666-48b7-85d1-748ec43ef01a",
+      "name": "Loop Over Websites"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT job_pages_raw.id, websites.domain, job_pages_raw.html,\n  job_data_selector, job_detail_selector, job_pages_raw.url\n  FROM job_pages_raw \n  INNER JOIN websites ON job_pages_raw.website_id = websites.id\n  INNER JOIN website_config ON website_config.website_id = websites.id\n  WHERE job_pages_raw.url = '{{ $json.url }}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        256,
+        896
+      ],
+      "id": "cf16bd36-2680-4429-a4bb-b4f42bfc8166",
+      "name": "Ger Raw Html",
+      "credentials": {
+        "postgres": {
+          "id": "XjR5TJfdQN2TCi6n",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "dataPropertyName": "html",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "job_data",
+              "cssSelector": "={{ $json.job_data_selector }}",
+              "returnArray": true
+            },
+            {
+              "key": "jod_detail",
+              "cssSelector": "={{ $json.job_detail_selector }}",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        896
+      ],
+      "id": "8b8153bb-a88f-4bc2-95a3-06a9badf84bf",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Eres un extractor determinista.  \nDevuelve UN JSON válido que siga EXACTAMENTE este esquema:\n\n{\n  \"job_title\": \"\",\n  \"company\": \"\",\n  \"location\": \"\",\n  \"salary\": \"\",\n  \"posted_at\": \"\",\n  \"tags\": [],\n  \"description\": \"\"\n}\n\n⚠️ Reglas:\n- Copia literalmente los valores cuando existan. No inventes.\n- Si no encuentras un campo, deja \"\" (o [] para tags).\n- \"posted_at\" debe ir en formato YYYY-MM-DD. Si ves fechas tipo \"Publicado 16 Oct 2025\", conviértelas. Si no hay fecha clara, usa \"1900-01-01\".\n- No uses markdown, code fences, texto adicional ni claves extra en el JSON.\n- Si el JSON que generas esta vacio o falla la validacion del esquema intentalo extraer de nuevo la informacion.\n\nTEXTO DE ENTRADA (delimitado):\n<JOB_DETAIL>\n{{ $json.input_text }}\n</JOB_DETAIL>",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        880,
+        896
+      ],
+      "id": "20fc8909-cec3-4f9e-b4a8-a2ea341e7061",
+      "name": "Basic LLM Set Job Info",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Eres un agente especializado en analizar HTML y extraer información estructurada.\n\nTu tarea es leer el HTML y construir un JSON con:\n- total_jobs → número total de ofertas\n\n⚠️ Devuelve estrictamente un JSON con este formato:\n{\n  \"total_jobs\": number\n}\n\n{{ $('Get Websites').item.json.description }}\n\n❌ No devuelvas texto adicional ni comentarios. Solo el JSON.\n⚠️ Si el JSON esta vacio reintenta generarlo.\n\nEste es el HTML:\n{{ $json.clean_text }}",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -32,
+        256
+      ],
+      "id": "d2487e65-4ee8-419e-9b72-7eaa62a77057",
+      "name": "Basic LLM Get Total Jobs"
+    },
+    {
+      "parameters": {
+        "model": "gpt-oss:20b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        864,
+        1136
+      ],
+      "id": "89d9401b-3177-42f7-94e1-294b2494611a",
+      "name": "Ollama Chat Model1",
+      "credentials": {
+        "ollamaApi": {
+          "id": "NRBuDiB0EZJ03bWb",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO job_records_structured (\n  page_id, domain, job_title, company, location, salary,\n  posted_at, tags, description, extracted_at, updated_at\n)\nVALUES (\n  '{{ $('Ger Raw Html').item.json.id }}',\n  '{{ $('Ger Raw Html').item.json.domain }}',\n  '{{ $json.job_title }}',\n  '{{ $json.company }}',\n  '{{ $json.location }}',\n  '{{ $json.salary }}',\n  '{{ $json.posted_at }}',\n  '{{ JSON.stringify($json.tags) }}',\n  '{{ $json.description }}',\n  NOW(), \n  NOW())\nON CONFLICT (page_id) DO UPDATE\nSET\n  domain = EXCLUDED.domain,\n  job_title = EXCLUDED.job_title,\n  company = EXCLUDED.company,\n  location = EXCLUDED.location,\n  salary = EXCLUDED.salary,\n  posted_at = EXCLUDED.posted_at,\n  tags = EXCLUDED.tags,\n  description = EXCLUDED.description,\n  updated_at = NOW()\nRETURNING page_id AS id;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1424,
+        896
+      ],
+      "id": "47494323-adca-45ee-b801-c3d10bebf9c4",
+      "name": "Insert Job Data",
+      "credentials": {
+        "postgres": {
+          "id": "XjR5TJfdQN2TCi6n",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nfunction coerceToObject(any) {\n  if (any && typeof any === 'object') return any;\n  if (typeof any === 'string') {\n    const cleaned = any.replace(/^```json|^```|```$/g, '').trim();\n    try { return JSON.parse(cleaned); } catch (e) {}\n  }\n  return {};\n}\n\nfunction escapeQuotes(text) {\n  if (!text || typeof text !== 'string') return '';\n  return text.replace(/'/g, \"''\").trim();\n}\n\nfunction normalizeArray(value) {\n  if (!value || value === null) return [\"General\"];\n  if (Array.isArray(value) && value.length > 0) {\n    return value.map(v => escapeQuotes(v.trim()));\n  }\n\n  if (typeof value === 'string') {\n    const arr = value\n      .split(',')\n      .map(s => escapeQuotes(s.trim()))\n      .filter(s => s.length > 0);\n    return arr.length > 0 ? arr : [\"General\"];\n  }\n\n  return [\"General\"];\n}\n\nfunction normalizeText(desc) {\n  if (!desc || typeof desc !== 'string' || desc.trim() === \"\") {\n    return \"Sin descripción disponible.\";\n  }\n\n  return desc\n    .replace(/'/g, \"''\")          // Escapa comillas simples\n    .replace(/[\\r\\n]+/g, ' ')     // Reemplaza saltos de línea\n    .replace(/\\s+/g, ' ')         // Colapsa espacios múltiples\n    .trim();\n}\n\n// Valores por defecto si vienen vacíos\nconst DEFAULTS = {\n  job_title: \"Título no especificado\",\n  company: \"Compañía no especificada\",\n  location: \"Ubicación no especificada\",\n  salary: \"Salario no especificado\",\n  posted_at: \"1900-01-01\",\n  tags: [\"General\"],\n  description: \"Sin descripción disponible.\"\n};\n\nconst out = items.map(item => {\n  // Obtener la salida generada por el LLM\n  let src = item.json?.output ?? item.json?.result ?? item.json?.text ?? item.json ?? {};\n  src = coerceToObject(src);\n\n  // Datos base del sitio\n  const pageData = $('Loop Over Job Page').first().json;\n\n  const base = {\n    id: escapeQuotes(pageData.id?.toString() || ''),\n    domain: escapeQuotes(pageData.domain || ''),\n    url: escapeQuotes(pageData.url || ''),\n    job_title: escapeQuotes(src.job_title?.trim() || DEFAULTS.job_title),\n    company: escapeQuotes(src.company?.trim() || DEFAULTS.company),\n    location: escapeQuotes(src.location?.trim() || DEFAULTS.location),\n    salary: escapeQuotes(src.salary?.trim() || DEFAULTS.salary),\n    posted_at: escapeQuotes(src.posted_at?.trim() || DEFAULTS.posted_at),\n    tags: normalizeArray(src.tags),\n    description: normalizeText(src.description)\n  };\n\n  return { json: base };\n});\n\nreturn out;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1216,
+        896
+      ],
+      "id": "fce0718b-7510-43f1-9685-2545bf9f624a",
+      "name": "Fix Job Data"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nfunction cleanText(text) {\n  if (!text) return '';\n  return text\n    .replace(/\\\\n/g, ' ')\n    .replace(/\\s+/g, ' ')\n    .replace(/\\t/g, ' ')\n    .trim();\n}\n\nreturn items.map(item => {\n  const job = cleanText(item.json.job_data?.[0]);\n  const detail = cleanText(item.json.jod_detail?.[0] || item.json.job_detail?.[0]);\n  return {\n    json: {\n      input_text: `${job}\\n\\n${detail}`\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        656,
+        896
+      ],
+      "id": "25f8404c-2f60-408f-ba10-8f1e8172694a",
+      "name": "Clean Text"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"total_jobs\": \"number\",\n  \"jobs_per_page\": \"number\",\n  \"total_pages\": \"number\",\n  \"pagination_pattern\": \"string\",\n  \"pagination_urls\": [\"string\"]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        112,
+        448
+      ],
+      "id": "c92b980f-d4d9-4f31-aa56-fbf18d1137dc",
+      "name": "Structured Output Total Jobs"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"job_title\": \"string\",\n  \"company\": \"string\",\n  \"location\": \"string\",\n  \"salary\": \"string\",\n  \"posted_at\": \"string\",\n  \"tags\": [\"string\"],\n  \"description\": \"string\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1040,
+        1136
+      ],
+      "id": "3573e09c-7961-4b10-b1bc-9dbe306b11ec",
+      "name": "Structured Output Job Detail"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                6
+              ],
+              "triggerAtHour": 22
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1232,
+        64
+      ],
+      "id": "b9d9d7fe-07a5-4bea-87e6-99923532d645",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "fPjwvT2VUwedD9pq",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/fPjwvT2VUwedD9pq",
+          "cachedResultName": "Fix Jobs Data"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {}
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -384,
+        48
+      ],
+      "id": "955e8834-fc3d-4cd1-a8a8-139743754d2a",
+      "name": "Call 'Fix Jobs Data'"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Get Websites",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Websites": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Websites",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Main Page": {
+      "main": [
+        [
+          {
+            "node": "Get Total Selector",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Get Total Jobs",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate ULRs": {
+      "main": [
+        [
+          {
+            "node": "Split Paginations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Search Page": {
+      "main": [
+        [
+          {
+            "node": "Get Link By CSS Selector",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Total Selector": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Get Total Jobs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split URLs": {
+      "main": [
+        [
+          {
+            "node": "Fix Jobs URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Paginations": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Search Pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fix Jobs URLs": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Job Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Job Page": {
+      "main": [
+        [
+          {
+            "node": "Ger Raw Html",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "URL Verification": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Get Job Page",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Job Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Search Pages": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Websites",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Search Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Job Page": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Search Pages",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "URL Verification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Websites": {
+      "main": [
+        [
+          {
+            "node": "Call 'Fix Jobs Data'",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Main Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ger Raw Html": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Clean Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Set Job Info": {
+      "main": [
+        [
+          {
+            "node": "Fix Job Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Get Total Jobs": {
+      "main": [
+        [
+          {
+            "node": "Generate ULRs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Set Job Info",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Job Data": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Job Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fix Job Data": {
+      "main": [
+        [
+          {
+            "node": "Insert Job Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean Text": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Set Job Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Total Jobs": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Get Total Jobs",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Job Detail": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Set Job Info",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Websites",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7bff10f5-e2b6-49a4-887a-cfcec11934b2",
+  "meta": {
+    "instanceId": "ace676532ce958726b0c4ffedc40ba8ecf285de3dec650ceeb8e8d1bd3844dec"
+  },
+  "id": "l4uBzr9qiBE8CDbz",
+  "tags": []
+}
