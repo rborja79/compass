@@ -1,10 +1,10 @@
 {
-  "name": "Academic Sources Scraping",
+  "name": "Scraping Job Sources",
   "nodes": [
     {
       "parameters": {
         "method": "POST",
-        "url": "http://scraper_service:8000/start",
+        "url": "http://compass_scraper_service:8000/start",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -38,10 +38,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        0,
-        320
+        736,
+        176
       ],
-      "id": "da3005d5-e272-4958-9884-9c8a94a72281",
+      "id": "c2b9d8c8-c66c-4a3a-b8b8-d91056c1d075",
       "name": "HTTP Request",
       "notesInFlow": false
     },
@@ -52,29 +52,29 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        -304,
-        144
+        432,
+        0
       ],
-      "id": "4a25f77b-7d5b-4712-b792-e9e9e07be29e",
+      "id": "47b9393c-a1bf-4e5c-aa92-92c13739243b",
       "name": "Loop Over Websites"
     },
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "SELECT id, domain, url, description, category_id \n  FROM websites \n  WHERE category_id = 1 \n  ORDER BY id DESC",
+        "query": "SELECT id, domain, url, description, category_id \n  FROM websites \n  WHERE category_id = 2 \n  ORDER BY id DESC",
         "options": {}
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        -512,
-        144
+        224,
+        0
       ],
-      "id": "7aec498a-43de-455a-98f0-7db6fe35afcc",
+      "id": "e02d6a43-f349-461f-b785-2b3f724ff482",
       "name": "Get Websites",
       "credentials": {
         "postgres": {
-          "id": "XjR5TJfdQN2TCi6n",
+          "id": "QGoF20Ra74CRgkVh",
           "name": "Postgres account"
         }
       }
@@ -95,10 +95,10 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        -736,
-        144
+        0,
+        0
       ],
-      "id": "67d8abf0-2743-43b6-ad95-1015ade2f571",
+      "id": "37110d98-d8f7-432a-b06a-0ef323f9331f",
       "name": "Schedule Trigger"
     }
   ],
@@ -154,11 +154,11 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "f4c7abef-5da2-4dec-a854-5855bb225aba",
+  "versionId": "420000d5-3226-457e-a67b-7af1b96cf7ec",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "ace676532ce958726b0c4ffedc40ba8ecf285de3dec650ceeb8e8d1bd3844dec"
+    "instanceId": "2e3b0a5f443db6941000335ed602e7f66865ee808a7567a89444158e7e72c88e"
   },
-  "id": "qXRmQ3AlW82hdZMf",
+  "id": "EGwVT9EVUS6XvK1r",
   "tags": []
 }

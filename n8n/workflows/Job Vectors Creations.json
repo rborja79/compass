@@ -1,0 +1,1323 @@
+{
+  "name": "Job Vectors Creations",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1088,
+        -720
+      ],
+      "id": "33f4d384-bcb1-42d8-803c-850c76ca0915",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT DISTINCT job_title AS text_to_embed, 'jobs_title' AS collection\nFROM job_records_structured",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -656,
+        -1264
+      ],
+      "id": "3ca64890-454b-4132-b5a6-ee56145331d1",
+      "name": "Get job_title",
+      "credentials": {
+        "postgres": {
+          "id": "QGoF20Ra74CRgkVh",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT DISTINCT tags AS text_to_embed, 'tags_title' AS collection\nFROM job_records_structured",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -624,
+        64
+      ],
+      "id": "04226549-5e05-4ac1-adf0-cff7ce02ad69",
+      "name": "Get tags",
+      "credentials": {
+        "postgres": {
+          "id": "QGoF20Ra74CRgkVh",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -448,
+        -1264
+      ],
+      "id": "bf7590b8-83d9-4117-8452-1c87fc23bb80",
+      "name": "Loop Over Job Titles"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c26806c3-9311-4bcb-a116-928b4b2d6ab7",
+              "leftValue": "={{ $json.collection_exists }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        -1264
+      ],
+      "id": "5f9643f0-9c64-4189-97ca-f8a91b799a2f",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c26806c3-9311-4bcb-a116-928b4b2d6ab7",
+              "leftValue": "={{ $json.collection_exists }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        -592
+      ],
+      "id": "6aaf7d6d-6e79-43d3-80a4-304cbd028fd6",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c26806c3-9311-4bcb-a116-928b4b2d6ab7",
+              "leftValue": "={{ $json.collection_exists }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        80
+      ],
+      "id": "d8ade9dc-1d00-4343-92d8-dba88bcbded1",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT DISTINCT location AS text_to_embed, 'location_title' AS collection\nFROM job_records_structured",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -640,
+        -608
+      ],
+      "id": "01cab71a-b810-4109-bcdf-497dec959bb0",
+      "name": "Get location",
+      "credentials": {
+        "postgres": {
+          "id": "QGoF20Ra74CRgkVh",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://ml_service:8008/embed",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "muddan-nuvvuh-7zyvhY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ $json.text_to_embed }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -128,
+        -1264
+      ],
+      "id": "4601fce0-6f94-4417-abca-49b5c2dea5c4",
+      "name": "Get Job Embeding"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://ml_service:8008/embed",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "muddan-nuvvuh-7zyvhY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ $json.text_to_embed }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -128,
+        -592
+      ],
+      "id": "1883b54a-6749-48a7-97ca-62e50967406f",
+      "name": "Get Location Embeding"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://ml_service:8008/embed",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "muddan-nuvvuh-7zyvhY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ $json.text_to_embed }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        16,
+        80
+      ],
+      "id": "3ddea3f7-34f6-4706-a7a9-0a9db6e6c731",
+      "name": "Get Tags Embeding"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -432,
+        -608
+      ],
+      "id": "d429565f-3008-461c-8eb5-55ea2c28d304",
+      "name": "Loop Over Locations"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -416,
+        64
+      ],
+      "id": "337d2656-0d53-465e-a86f-205c32500ed9",
+      "name": "Loop Over Tags"
+    },
+    {
+      "parameters": {
+        "operation": "collectionExists",
+        "collectionName": "={{ $('Loop Over Job Titles').item.json.collection }}",
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-qdrant.qdrant",
+      "typeVersion": 1,
+      "position": [
+        80,
+        -1264
+      ],
+      "id": "8900ecb2-616d-4be8-bd34-1edae4f5b03c",
+      "name": "Check If Collection Jobs Titles Exists",
+      "credentials": {
+        "qdrantRestApi": {
+          "id": "DnlAsW0qDPFuwihX",
+          "name": "Qdrant account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "collectionExists",
+        "collectionName": "={{ $('Loop Over Locations').item.json.collection }}",
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-qdrant.qdrant",
+      "typeVersion": 1,
+      "position": [
+        80,
+        -592
+      ],
+      "id": "a24bf06e-06fd-48bf-baaf-9bdab00702f5",
+      "name": "Check If Collection Locations Exists",
+      "credentials": {
+        "qdrantRestApi": {
+          "id": "DnlAsW0qDPFuwihX",
+          "name": "Qdrant account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "collectionExists",
+        "collectionName": "={{ $('Loop Over Tags').item.json.collection }}",
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-qdrant.qdrant",
+      "typeVersion": 1,
+      "position": [
+        224,
+        80
+      ],
+      "id": "3e9d3b1d-d7df-48c4-839f-ad5d308e0e94",
+      "name": "Check If Collection Tags Exists",
+      "credentials": {
+        "qdrantRestApi": {
+          "id": "DnlAsW0qDPFuwihX",
+          "name": "Qdrant account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function normalizeText(text) {\n  return text\n    .toLowerCase()\n    .normalize('NFD')\n    .replace(/[\\u0300-\\u036f]/g, '') // quitar tildes\n    .trim();\n}\n\n// Hash FNV-1a (rápido y determinístico)\nfunction simpleHash(str) {\n  let hash = 2166136261;\n  for (let i = 0; i < str.length; i++) {\n    hash ^= str.charCodeAt(i);\n    hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);\n  }\n  return (hash >>> 0).toString(16); // convertir a string hex\n}\n\nconst items = $input.all();\n\nreturn items.map((item) => {\n  const text_to_process = $('Loop Over Job Titles').first().json.text_to_embed || 'undefined';\n  const hash = simpleHash(normalizeText(text_to_process));\n  const hashNumber = parseInt(hash, 16);\n\n  // Asegurar que sea un array de números\n  const rawVector = $('Get Job Embeding').first().json.embedding;\n  const vector = Array.isArray(rawVector) ? rawVector : Object.values(rawVector);\n\n  return {\n    json: {\n      id: hashNumber,\n      vector: vector,\n      payload: {\n        text: $('Loop Over Job Titles').first().json.text_to_embed,\n        tipo: $('Loop Over Job Titles').first().json.collection\n      },\n      collection: $('Loop Over Job Titles').first().json.collection,\n      collection_exists: $input.first().json.result.exists\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        272,
+        -1264
+      ],
+      "id": "fae27730-af0d-4c84-ba80-2ab8bb55ce64",
+      "name": "Fix Job Payload"
+    },
+    {
+      "parameters": {
+        "jsCode": "function normalizeText(text) {\n  return text\n    .toLowerCase()\n    .normalize('NFD')\n    .replace(/[\\u0300-\\u036f]/g, '') // quitar tildes\n    .trim();\n}\n\n// Hash FNV-1a (rápido y determinístico)\nfunction simpleHash(str) {\n  let hash = 2166136261;\n  for (let i = 0; i < str.length; i++) {\n    hash ^= str.charCodeAt(i);\n    hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);\n  }\n  return (hash >>> 0).toString(16); // convertir a string hex\n}\n\nconst items = $input.all();\n\nreturn items.map((item) => {\n  const text_to_process = $('Loop Over Locations').first().json.text_to_embed || 'undefined';\n  const hash = simpleHash(normalizeText(text_to_process));\n  const hashNumber = parseInt(hash, 16);\n\n  // Asegurar que sea un array de números\n  const rawVector = $('Get Location Embeding').first().json.embedding;\n  const vector = Array.isArray(rawVector) ? rawVector : Object.values(rawVector);\n\n  return {\n    json: {\n      id: hashNumber,\n      vector: vector,\n      payload: {\n        text: $('Loop Over Locations').first().json.text_to_embed,\n        tipo: $('Loop Over Locations').first().json.collection\n      },\n      collection: $('Loop Over Locations').first().json.collection,\n      collection_exists: $input.first().json.result.exists\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        272,
+        -592
+      ],
+      "id": "bd02733a-4565-46c2-a94f-fc9e741bc5e1",
+      "name": "Fix Location Payload"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Hash FNV-1a (rápido y determinístico)\nfunction simpleHash(str) {\n  let hash = 2166136261;\n  for (let i = 0; i < str.length; i++) {\n    hash ^= str.charCodeAt(i);\n    hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);\n  }\n  return (hash >>> 0).toString(16); // convertir a string hex\n}\n\nconst items = $input.all();\n\nreturn items.map((item) => {\n  // 📥 Obtenemos el texto ya normalizado\n  const text_to_process = $('Fix Array Tags').first().json.text_to_embed || 'undefined';\n\n  // 🧮 Generamos un hash determinístico\n  const hash = simpleHash(text_to_process);\n  const hashNumber = parseInt(hash, 16);\n\n  // 🧠 Asegurar que el embedding esté en formato array\n  const rawVector = $('Get Tags Embeding').first().json.embedding;\n  const vector = Array.isArray(rawVector) ? rawVector : Object.values(rawVector);\n\n  // 🧰 Construimos el payload\n  return {\n    json: {\n      id: hashNumber,   // este es el point id que se usará en Qdrant\n      vector: vector,\n      payload: {\n        text: text_to_process,\n        tipo: $('Loop Over Tags').first().json.collection || 'tags'\n      },\n      collection: $('Loop Over Tags').first().json.collection || 'tags',\n      collection_exists: $input.first().json.result.exists\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        80
+      ],
+      "id": "f6b49d28-c206-4555-938b-7b6b0ffb0e4d",
+      "name": "Fix Tags Payload"
+    },
+    {
+      "parameters": {
+        "operation": "createCollection",
+        "collectionName": "={{ $('Loop Over Job Titles').item.json.collection }}",
+        "vectors": "{\n  \"size\": 768,\n  \"distance\": \"Cosine\"\n}",
+        "onDiskPayload": true,
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-qdrant.qdrant",
+      "typeVersion": 1,
+      "position": [
+        640,
+        -1120
+      ],
+      "id": "1351b412-e9d2-4bd9-929f-8fb32a613c38",
+      "name": "Create Collection Job Titles",
+      "credentials": {
+        "qdrantRestApi": {
+          "id": "DnlAsW0qDPFuwihX",
+          "name": "Qdrant account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "createCollection",
+        "collectionName": "={{ $('Loop Over Locations').item.json.collection }}",
+        "vectors": "{\n  \"size\": 768,\n  \"distance\": \"Cosine\"\n}",
+        "onDiskPayload": true,
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-qdrant.qdrant",
+      "typeVersion": 1,
+      "position": [
+        640,
+        -448
+      ],
+      "id": "716b9ed6-9f6c-4189-858d-0fd03f980ecb",
+      "name": "Create Collection Locations",
+      "credentials": {
+        "qdrantRestApi": {
+          "id": "DnlAsW0qDPFuwihX",
+          "name": "Qdrant account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "createCollection",
+        "collectionName": "={{ $('Loop Over Tags').item.json.collection }}",
+        "vectors": "{\n  \"size\": 768,\n  \"distance\": \"Cosine\"\n}",
+        "onDiskPayload": true,
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-qdrant.qdrant",
+      "typeVersion": 1,
+      "position": [
+        784,
+        224
+      ],
+      "id": "2eea922e-28ab-4a54-94ec-e4315fd0956a",
+      "name": "Create Collection Tags",
+      "credentials": {
+        "qdrantRestApi": {
+          "id": "DnlAsW0qDPFuwihX",
+          "name": "Qdrant account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "point",
+        "operation": "upsertPoints",
+        "collectionName": {
+          "__rl": true,
+          "value": "={{ $json.collection }}",
+          "mode": "name"
+        },
+        "points": "=[\n  {\n    \"id\": {{ $json.id }},\n    \"vector\": [{{ Object.values($json.vector) }}],\n    \"payload\": {\n      \"text\": \"{{ $json.payload.text }}\",\n      \"tipo\": \"{{ $json.payload.tipo }}\"\n    }\n  }\n]",
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-qdrant.qdrant",
+      "typeVersion": 1,
+      "position": [
+        1136,
+        -1056
+      ],
+      "id": "aabc5c16-321d-4b4b-b1d5-0444c0e2ca46",
+      "name": "Upsert Points Job",
+      "credentials": {
+        "qdrantRestApi": {
+          "id": "DnlAsW0qDPFuwihX",
+          "name": "Qdrant account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "point",
+        "operation": "upsertPoints",
+        "collectionName": {
+          "__rl": true,
+          "value": "={{ $json.collection }}",
+          "mode": "name"
+        },
+        "points": "=[\n  {\n    \"id\": {{ $json.id }},\n    \"vector\": [{{ Object.values($json.vector) }}],\n    \"payload\": {\n      \"text\": \"{{ $json.payload.text }}\",\n      \"tipo\": \"{{ $json.payload.tipo }}\"\n    }\n  }\n]",
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-qdrant.qdrant",
+      "typeVersion": 1,
+      "position": [
+        1152,
+        -384
+      ],
+      "id": "2eb61083-5553-4503-92fd-66147eaea3b8",
+      "name": "Upsert Points Location",
+      "credentials": {
+        "qdrantRestApi": {
+          "id": "DnlAsW0qDPFuwihX",
+          "name": "Qdrant account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "point",
+        "operation": "upsertPoints",
+        "collectionName": {
+          "__rl": true,
+          "value": "={{ $json.collection }}",
+          "mode": "name"
+        },
+        "points": "=[\n  {\n    \"id\": {{ $json.id }},\n    \"vector\": [{{ Object.values($json.vector) }}],\n    \"payload\": {\n      \"text\": \"{{ $json.payload.text }}\",\n      \"tipo\": \"{{ $json.payload.tipo }}\"\n    }\n  }\n]",
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-qdrant.qdrant",
+      "typeVersion": 1,
+      "position": [
+        1152,
+        288
+      ],
+      "id": "433c2151-5be7-4b47-a738-ea7e9736e478",
+      "name": "Upsert Points Tags",
+      "credentials": {
+        "qdrantRestApi": {
+          "id": "DnlAsW0qDPFuwihX",
+          "name": "Qdrant account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nfunction normalizeText(str) {\n  return str\n    .toLowerCase()\n    .normalize('NFD')\n    .replace(/[\\u0300-\\u036f]/g, '') // quita tildes\n    .trim();\n}\n\nreturn items.map(item => {\n  const arr = item.json.text_to_embed || [];\n  const text = Array.isArray(arr) ? arr.join(' ') : arr;\n  return {\n    json: {\n      ...item.json,\n      text_to_embed: normalizeText(text)\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -192,
+        80
+      ],
+      "id": "3c721836-ea2b-47d8-84f0-d8d20ac388b1",
+      "name": "Fix Array Tags"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://ml_service:8008/centroids/save",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "muddan-nuvvuh-7zyvhY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "collection",
+              "value": "={{ $('Calculate Job Clusters').item.json.collection }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        528,
+        -1456
+      ],
+      "id": "66713791-1018-42d5-9aed-f9421f53086c",
+      "name": "Create Job Centroid"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://ml_service:8008/centroids/save",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "muddan-nuvvuh-7zyvhY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "collection",
+              "value": "={{ $('Calculate Location Clusters').item.json.collection }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        528,
+        -800
+      ],
+      "id": "109e8424-cbd5-4f06-a794-47163df49e51",
+      "name": "Create Location Centroid"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://ml_service:8008/centroids/save",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "muddan-nuvvuh-7zyvhY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "collection",
+              "value": "={{ $('Calculate Tags Clusters').item.json.collection }}"
+            },
+            {
+              "name": "n_clusters",
+              "value": "={{ $json.suggested_k }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        528,
+        -112
+      ],
+      "id": "60b0a240-0685-4866-8c5b-2272c08900d8",
+      "name": "Create Tags Centroid"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://ml_service:8008/clusters/suggest",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "muddan-nuvvuh-7zyvhY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "collection",
+              "value": "={{ $('Get job_title').item.json.collection }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -224,
+        -1456
+      ],
+      "id": "b7b11b2f-2cef-4bc8-b37d-33325dcc128c",
+      "name": "Calculate Job Clusters",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://ml_service:8008/clusters/create",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "muddan-nuvvuh-7zyvhY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "collection",
+              "value": "={{ $json.collection }}"
+            },
+            {
+              "name": "n_clusters",
+              "value": "={{ $json.suggested_k }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        128,
+        -1456
+      ],
+      "id": "4433e154-087e-4f06-8315-4da0240ec581",
+      "name": "Create Job Clusters",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://ml_service:8008/clusters/suggest",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "muddan-nuvvuh-7zyvhY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "collection",
+              "value": "={{ $('Get location').item.json.collection }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -192,
+        -800
+      ],
+      "id": "b48d76aa-03df-4d2c-97fb-09e9f564ff95",
+      "name": "Calculate Location Clusters",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://ml_service:8008/clusters/create",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "muddan-nuvvuh-7zyvhY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "collection",
+              "value": "={{ $json.collection }}"
+            },
+            {
+              "name": "n_clusters",
+              "value": "={{ $json.suggested_k }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        160,
+        -800
+      ],
+      "id": "04911f15-3ab0-44fe-b357-7e8905978946",
+      "name": "Create Location Clusters",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://ml_service:8008/clusters/suggest",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "muddan-nuvvuh-7zyvhY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "collection",
+              "value": "={{ $('Get tags').item.json.collection }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -192,
+        -112
+      ],
+      "id": "27364a89-c79a-4ed4-a32b-61b93e1785a6",
+      "name": "Calculate Tags Clusters",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://ml_service:8008/clusters/create",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "muddan-nuvvuh-7zyvhY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "collection",
+              "value": "={{ $json.collection }}"
+            },
+            {
+              "name": "n_clusters",
+              "value": "={{ $json.suggested_k }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        160,
+        -112
+      ],
+      "id": "ef2488bc-6c84-40dd-a511-d561dd4afe8b",
+      "name": "Create Tags Clusters",
+      "executeOnce": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Get job_title",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get location",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get tags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get job_title": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Job Titles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Job Titles": {
+      "main": [
+        [
+          {
+            "node": "Calculate Job Clusters",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Job Embeding",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Upsert Points Job",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Collection Job Titles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Upsert Points Location",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Collection Locations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Upsert Points Tags",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Collection Tags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get tags": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Tags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get location": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Locations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Job Embeding": {
+      "main": [
+        [
+          {
+            "node": "Check If Collection Jobs Titles Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Location Embeding": {
+      "main": [
+        [
+          {
+            "node": "Check If Collection Locations Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Tags Embeding": {
+      "main": [
+        [
+          {
+            "node": "Check If Collection Tags Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Locations": {
+      "main": [
+        [
+          {
+            "node": "Calculate Location Clusters",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Location Embeding",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Tags": {
+      "main": [
+        [
+          {
+            "node": "Calculate Tags Clusters",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fix Array Tags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Collection Jobs Titles Exists": {
+      "main": [
+        [
+          {
+            "node": "Fix Job Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Collection Locations Exists": {
+      "main": [
+        [
+          {
+            "node": "Fix Location Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Collection Tags Exists": {
+      "main": [
+        [
+          {
+            "node": "Fix Tags Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fix Job Payload": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fix Location Payload": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fix Tags Payload": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Collection Job Titles": {
+      "main": [
+        [
+          {
+            "node": "Upsert Points Job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Collection Locations": {
+      "main": [
+        [
+          {
+            "node": "Upsert Points Location",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Collection Tags": {
+      "main": [
+        [
+          {
+            "node": "Upsert Points Tags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert Points Job": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Job Titles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert Points Location": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Locations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert Points Tags": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Tags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fix Array Tags": {
+      "main": [
+        [
+          {
+            "node": "Get Tags Embeding",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Job Clusters": {
+      "main": [
+        [
+          {
+            "node": "Create Job Clusters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Job Clusters": {
+      "main": [
+        [
+          {
+            "node": "Create Job Centroid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Location Clusters": {
+      "main": [
+        [
+          {
+            "node": "Create Location Clusters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Location Clusters": {
+      "main": [
+        [
+          {
+            "node": "Create Location Centroid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Tags Clusters": {
+      "main": [
+        [
+          {
+            "node": "Create Tags Clusters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Tags Clusters": {
+      "main": [
+        [
+          {
+            "node": "Create Tags Centroid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4e4bd24f-e20e-4d8a-901a-e06ac57d9372",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2e3b0a5f443db6941000335ed602e7f66865ee808a7567a89444158e7e72c88e"
+  },
+  "id": "2518WnYrvfEm7pGp",
+  "tags": []
+}

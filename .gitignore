@@ -70,3 +70,5 @@ Desktop.ini
 *.temp
 *.bak
 *.swn
+/open-webui/*
+

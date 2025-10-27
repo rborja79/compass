@@ -8,10 +8,10 @@
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
       "position": [
-        -1936,
-        -16
+        -2160,
+        32
       ],
-      "id": "06c23f9a-9426-4c67-8e62-1916c3972dc5",
+      "id": "c2028ea6-bcc7-4cff-9d16-019abc70f7c1",
       "name": "When Executed by Another Workflow"
     },
     {
@@ -21,10 +21,10 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        -1392,
-        176
+        -1616,
+        224
       ],
-      "id": "e632aa61-ad23-4942-b030-1568375e4afc",
+      "id": "e0131f54-3413-4b25-a88f-55580b6bfa1c",
       "name": "Loop Over Pages"
     },
     {
@@ -45,10 +45,10 @@
       "type": "n8n-nodes-base.html",
       "typeVersion": 1.2,
       "position": [
-        -1232,
-        448
+        -1456,
+        496
       ],
-      "id": "bf562634-fe26-4473-a972-14c93d2e29da",
+      "id": "3a1b03b0-74bd-40e8-b4aa-68bd9188c0d6",
       "name": "HTML"
     },
     {
@@ -63,10 +63,10 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.7,
       "position": [
-        -672,
-        224
+        -896,
+        272
       ],
-      "id": "05445d47-a36e-46a3-8697-683768b59514",
+      "id": "30df84fb-b03f-4321-89b1-d1efab648716",
       "name": "Basic LLM Chain",
       "retryOnFail": true
     },
@@ -78,17 +78,11 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        -672,
-        704
+        -896,
+        752
       ],
-      "id": "b3e44c20-b88d-44c1-8d54-07927d249513",
-      "name": "Ollama Chat Model",
-      "credentials": {
-        "ollamaApi": {
-          "id": "NRBuDiB0EZJ03bWb",
-          "name": "Ollama account"
-        }
-      }
+      "id": "42db8ded-f55e-47a8-8104-e8f6b0b55a76",
+      "name": "Ollama Chat Model"
     },
     {
       "parameters": {
@@ -99,17 +93,11 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        -1648,
-        176
+        -1872,
+        224
       ],
-      "id": "82a3525e-b296-472c-acac-9b4a65e1ceb6",
-      "name": "Get Raw Pages",
-      "credentials": {
-        "postgres": {
-          "id": "XjR5TJfdQN2TCi6n",
-          "name": "Postgres account"
-        }
-      }
+      "id": "598529b1-fa07-49e1-a1b3-dc91d23ad5f1",
+      "name": "Get Raw Pages"
     },
     {
       "parameters": {
@@ -120,18 +108,12 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        224,
-        -48
+        0,
+        0
       ],
-      "id": "6e8c3f31-d2f0-4b7e-86b6-c5b7a9fa342a",
+      "id": "f203b944-ca15-47f4-a2d0-68297d5dc76e",
       "name": "Insert Records Structured",
-      "alwaysOutputData": false,
-      "credentials": {
-        "postgres": {
-          "id": "XjR5TJfdQN2TCi6n",
-          "name": "Postgres account"
-        }
-      }
+      "alwaysOutputData": false
     },
     {
       "parameters": {
@@ -195,10 +177,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.3,
       "position": [
-        -64,
-        224
+        -288,
+        272
       ],
-      "id": "b94833c7-c57d-4adf-9732-a6630089f2b8",
+      "id": "4dc9be64-3b55-4ac9-bdb4-86cc3118092c",
       "name": "Switch",
       "executeOnce": false,
       "alwaysOutputData": false
@@ -212,17 +194,11 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        560,
-        464
+        336,
+        512
       ],
-      "id": "d61debbf-4c14-4c41-aaa8-4d9c1c6ff421",
-      "name": "Update Pages Status",
-      "credentials": {
-        "postgres": {
-          "id": "XjR5TJfdQN2TCi6n",
-          "name": "Postgres account"
-        }
-      }
+      "id": "fdd0d4c1-4517-438b-88c8-f764fc09d38e",
+      "name": "Update Pages Status"
     },
     {
       "parameters": {
@@ -232,10 +208,10 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        -528,
-        704
+        -752,
+        752
       ],
-      "id": "11435c75-0d2a-410f-810a-fd3aa1b4b18f",
+      "id": "333bae12-5686-4935-83f7-bd4a835399c7",
       "name": "Structured Output Parser"
     },
     {
@@ -266,10 +242,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -1024,
-        448
+        -1248,
+        496
       ],
-      "id": "3870da71-24f8-45d4-af7e-730ea6cc73e6",
+      "id": "98a36ee7-8260-4ff4-9314-6d8c6124a26c",
       "name": "If"
     },
     {
@@ -281,17 +257,11 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        432,
-        -48
+        208,
+        0
       ],
-      "id": "4a69e699-20a4-4aff-835f-3b28a06335fc",
-      "name": "Execute a SQL query",
-      "credentials": {
-        "postgres": {
-          "id": "XjR5TJfdQN2TCi6n",
-          "name": "Postgres account"
-        }
-      }
+      "id": "f80658a9-e37b-403d-ad58-10deb1e72e93",
+      "name": "Execute a SQL query"
     },
     {
       "parameters": {
@@ -300,10 +270,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -304,
-        224
+        -528,
+        272
       ],
-      "id": "791c2c7c-572b-4dc6-99c1-bc1afc74e95f",
+      "id": "51b240cb-5351-4b4f-afad-6b02dc0431b3",
       "name": "Format LLM Output"
     },
     {
@@ -313,10 +283,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -800,
-        464
+        -1024,
+        512
       ],
-      "id": "b965945f-e0a6-45cf-8f24-649685f6cce1",
+      "id": "1f19544f-1def-4a08-a9a5-4856017614b8",
       "name": "Format Irrelevant Output"
     }
   ],
@@ -496,11 +466,10 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "5bbd7a09-b465-4dde-9a44-a535d949645b",
+  "versionId": "c9b39a26-611c-4cf0-8f2d-e93cebb73a54",
   "meta": {
-    "templateCredsSetupCompleted": true,
-    "instanceId": "ace676532ce958726b0c4ffedc40ba8ecf285de3dec650ceeb8e8d1bd3844dec"
+    "instanceId": "2e3b0a5f443db6941000335ed602e7f66865ee808a7567a89444158e7e72c88e"
   },
-  "id": "ulH0IExxm6YukRpy",
+  "id": "wbNdzk4hYAu7SbDv",
   "tags": []
 }

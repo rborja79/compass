@@ -8,186 +8,29 @@
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
       "position": [
-        -864,
-        736
+        -848,
+        352
       ],
-      "id": "35673709-c1f6-4271-9573-74e543619048",
+      "id": "2a77deda-dcc8-4ca6-ae67-9085e55e3a46",
       "name": "When Executed by Another Workflow"
     },
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "SELECT DISTINCT job_title AS text_to_embed, 'jobs_title' AS collection\nFROM job_records_structured",
+        "query": "SELECT websites.id, domain, url, description, COALESCE(total_results_selector, 'body') AS total_results_selector, websites.category_id, \n  COALESCE(pagination_pattern, 'http://fakeurl.com') AS pagination_pattern,\n  COALESCE(link_selector, 'body') AS link_selector,\n  COALESCE(link_pattern, 'http://fakeurl.com') AS link_pattern,\n  COALESCE(job_data_selector, '') AS job_data_selector,\n  COALESCE(job_detail_selector, '') AS job_detail_selector,\n  jobs_per_page\n  FROM websites \n  LEFT JOIN website_config ON  websites.id = website_config.website_id\n  WHERE category_id = 2 \n  ORDER BY websites.id DESC",
         "options": {}
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        -432,
+        -624,
         192
       ],
-      "id": "d48dfa66-c7d1-4424-a3e8-98f6739f863f",
-      "name": "Get job_title",
+      "id": "55710a4b-907d-4fd2-8f6c-6d36865c5387",
+      "name": "Get Websites",
       "credentials": {
         "postgres": {
-          "id": "XjR5TJfdQN2TCi6n",
-          "name": "Postgres account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "operation": "executeQuery",
-        "query": "SELECT DISTINCT tags AS text_to_embed, 'tags_title' AS collection\nFROM job_records_structured",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.6,
-      "position": [
-        -400,
-        1520
-      ],
-      "id": "92beb56d-5c0d-4426-8ad3-7b7d34da52d2",
-      "name": "Get tags",
-      "credentials": {
-        "postgres": {
-          "id": "XjR5TJfdQN2TCi6n",
-          "name": "Postgres account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "options": {}
-      },
-      "type": "n8n-nodes-base.splitInBatches",
-      "typeVersion": 3,
-      "position": [
-        -224,
-        192
-      ],
-      "id": "b5b5b4e1-bc5e-47dd-83d2-70cabe588832",
-      "name": "Loop Over Job Titles"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "c26806c3-9311-4bcb-a116-928b4b2d6ab7",
-              "leftValue": "={{ $json.collection_exists }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        704,
-        192
-      ],
-      "id": "f5ad7840-b941-4712-bee2-712fa3a85179",
-      "name": "If"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "c26806c3-9311-4bcb-a116-928b4b2d6ab7",
-              "leftValue": "={{ $json.collection_exists }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        704,
-        864
-      ],
-      "id": "65ab3b5e-ead5-425e-b9cd-5e1ad179a3cf",
-      "name": "If1"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "c26806c3-9311-4bcb-a116-928b4b2d6ab7",
-              "leftValue": "={{ $json.collection_exists }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        848,
-        1536
-      ],
-      "id": "968246ce-354f-4f46-b3d8-61f635d1f0e1",
-      "name": "If2"
-    },
-    {
-      "parameters": {
-        "operation": "executeQuery",
-        "query": "SELECT DISTINCT location AS text_to_embed, 'location_title' AS collection\nFROM job_records_structured",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.6,
-      "position": [
-        -416,
-        848
-      ],
-      "id": "d069e352-d6a9-4cb0-9ea6-af4fa7116c4b",
-      "name": "Get location",
-      "credentials": {
-        "postgres": {
-          "id": "XjR5TJfdQN2TCi6n",
+          "id": "QGoF20Ra74CRgkVh",
           "name": "Postgres account"
         }
       }
@@ -195,7 +38,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "http://ml_service:8008/embed",
+        "url": "http://compass_scraper_service:8000/flaresolver",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -209,501 +52,12 @@
         "bodyParameters": {
           "parameters": [
             {
-              "name": "text",
-              "value": "={{ $json.text_to_embed }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        96,
-        192
-      ],
-      "id": "e8410d36-c6db-4dc5-835e-04a65b604f1b",
-      "name": "Get Job Embeding"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "http://ml_service:8008/embed",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "x-api-key",
-              "value": "muddan-nuvvuh-7zyvhY"
-            }
-          ]
-        },
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "text",
-              "value": "={{ $json.text_to_embed }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        96,
-        864
-      ],
-      "id": "9af2f048-033e-43a0-b140-144c50451bf7",
-      "name": "Get Location Embeding"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "http://ml_service:8008/embed",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "x-api-key",
-              "value": "muddan-nuvvuh-7zyvhY"
-            }
-          ]
-        },
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "text",
-              "value": "={{ $json.text_to_embed }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        240,
-        1536
-      ],
-      "id": "4379d3bc-463d-457b-bcd1-5369c2f0d9d7",
-      "name": "Get Tags Embeding"
-    },
-    {
-      "parameters": {
-        "options": {}
-      },
-      "type": "n8n-nodes-base.splitInBatches",
-      "typeVersion": 3,
-      "position": [
-        -208,
-        848
-      ],
-      "id": "417debbb-3152-4ce4-b8bd-bce67c995568",
-      "name": "Loop Over Locations"
-    },
-    {
-      "parameters": {
-        "options": {}
-      },
-      "type": "n8n-nodes-base.splitInBatches",
-      "typeVersion": 3,
-      "position": [
-        -192,
-        1520
-      ],
-      "id": "2607edcc-af16-4c40-acc0-01c76492cc9e",
-      "name": "Loop Over Tags"
-    },
-    {
-      "parameters": {
-        "operation": "collectionExists",
-        "collectionName": "={{ $('Loop Over Job Titles').item.json.collection }}",
-        "requestOptions": {}
-      },
-      "type": "n8n-nodes-qdrant.qdrant",
-      "typeVersion": 1,
-      "position": [
-        304,
-        192
-      ],
-      "id": "fdc5e64b-50bc-48cf-b822-7f012c145784",
-      "name": "Check If Collection Jobs Titles Exists",
-      "credentials": {
-        "qdrantRestApi": {
-          "id": "KAWrCuqm53MQlcHX",
-          "name": "Qdrant account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "operation": "collectionExists",
-        "collectionName": "={{ $('Loop Over Locations').item.json.collection }}",
-        "requestOptions": {}
-      },
-      "type": "n8n-nodes-qdrant.qdrant",
-      "typeVersion": 1,
-      "position": [
-        304,
-        864
-      ],
-      "id": "0025d25e-6dda-4310-a0bc-053278cfdf78",
-      "name": "Check If Collection Locations Exists",
-      "credentials": {
-        "qdrantRestApi": {
-          "id": "KAWrCuqm53MQlcHX",
-          "name": "Qdrant account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "operation": "collectionExists",
-        "collectionName": "={{ $('Loop Over Tags').item.json.collection }}",
-        "requestOptions": {}
-      },
-      "type": "n8n-nodes-qdrant.qdrant",
-      "typeVersion": 1,
-      "position": [
-        448,
-        1536
-      ],
-      "id": "6b59a899-3b50-483b-8aa3-b154e9a027ee",
-      "name": "Check If Collection Tags Exists",
-      "credentials": {
-        "qdrantRestApi": {
-          "id": "KAWrCuqm53MQlcHX",
-          "name": "Qdrant account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "jsCode": "function normalizeText(text) {\n  return text\n    .toLowerCase()\n    .normalize('NFD')\n    .replace(/[\\u0300-\\u036f]/g, '') // quitar tildes\n    .trim();\n}\n\n// Hash FNV-1a (rápido y determinístico)\nfunction simpleHash(str) {\n  let hash = 2166136261;\n  for (let i = 0; i < str.length; i++) {\n    hash ^= str.charCodeAt(i);\n    hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);\n  }\n  return (hash >>> 0).toString(16); // convertir a string hex\n}\n\nconst items = $input.all();\n\nreturn items.map((item) => {\n  const text_to_process = $('Loop Over Job Titles').first().json.text_to_embed || 'undefined';\n  const hash = simpleHash(normalizeText(text_to_process));\n  const hashNumber = parseInt(hash, 16);\n\n  // Asegurar que sea un array de números\n  const rawVector = $('Get Job Embeding').first().json.embedding;\n  const vector = Array.isArray(rawVector) ? rawVector : Object.values(rawVector);\n\n  return {\n    json: {\n      id: hashNumber,\n      vector: vector,\n      payload: {\n        text: $('Loop Over Job Titles').first().json.text_to_embed,\n        tipo: $('Loop Over Job Titles').first().json.collection\n      },\n      collection: $('Loop Over Job Titles').first().json.collection,\n      collection_exists: $input.first().json.result.exists\n    }\n  };\n});"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        496,
-        192
-      ],
-      "id": "50c5e667-804e-4404-96eb-a387a0015d95",
-      "name": "Fix Job Payload"
-    },
-    {
-      "parameters": {
-        "jsCode": "function normalizeText(text) {\n  return text\n    .toLowerCase()\n    .normalize('NFD')\n    .replace(/[\\u0300-\\u036f]/g, '') // quitar tildes\n    .trim();\n}\n\n// Hash FNV-1a (rápido y determinístico)\nfunction simpleHash(str) {\n  let hash = 2166136261;\n  for (let i = 0; i < str.length; i++) {\n    hash ^= str.charCodeAt(i);\n    hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);\n  }\n  return (hash >>> 0).toString(16); // convertir a string hex\n}\n\nconst items = $input.all();\n\nreturn items.map((item) => {\n  const text_to_process = $('Loop Over Locations').first().json.text_to_embed || 'undefined';\n  const hash = simpleHash(normalizeText(text_to_process));\n  const hashNumber = parseInt(hash, 16);\n\n  // Asegurar que sea un array de números\n  const rawVector = $('Get Location Embeding').first().json.embedding;\n  const vector = Array.isArray(rawVector) ? rawVector : Object.values(rawVector);\n\n  return {\n    json: {\n      id: hashNumber,\n      vector: vector,\n      payload: {\n        text: $('Loop Over Locations').first().json.text_to_embed,\n        tipo: $('Loop Over Locations').first().json.collection\n      },\n      collection: $('Loop Over Locations').first().json.collection,\n      collection_exists: $input.first().json.result.exists\n    }\n  };\n});"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        496,
-        864
-      ],
-      "id": "74f74ba2-73ce-407b-880d-ffd6de70c60f",
-      "name": "Fix Location Payload"
-    },
-    {
-      "parameters": {
-        "jsCode": "// Hash FNV-1a (rápido y determinístico)\nfunction simpleHash(str) {\n  let hash = 2166136261;\n  for (let i = 0; i < str.length; i++) {\n    hash ^= str.charCodeAt(i);\n    hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);\n  }\n  return (hash >>> 0).toString(16); // convertir a string hex\n}\n\nconst items = $input.all();\n\nreturn items.map((item) => {\n  // 📥 Obtenemos el texto ya normalizado\n  const text_to_process = $('Fix Array Tags').first().json.text_to_embed || 'undefined';\n\n  // 🧮 Generamos un hash determinístico\n  const hash = simpleHash(text_to_process);\n  const hashNumber = parseInt(hash, 16);\n\n  // 🧠 Asegurar que el embedding esté en formato array\n  const rawVector = $('Get Tags Embeding').first().json.embedding;\n  const vector = Array.isArray(rawVector) ? rawVector : Object.values(rawVector);\n\n  // 🧰 Construimos el payload\n  return {\n    json: {\n      id: hashNumber,   // este es el point id que se usará en Qdrant\n      vector: vector,\n      payload: {\n        text: text_to_process,\n        tipo: $('Loop Over Tags').first().json.collection || 'tags'\n      },\n      collection: $('Loop Over Tags').first().json.collection || 'tags',\n      collection_exists: $input.first().json.result.exists\n    }\n  };\n});"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        640,
-        1536
-      ],
-      "id": "dbee8386-8b88-41e8-8def-1b8155d39e2c",
-      "name": "Fix Tags Payload"
-    },
-    {
-      "parameters": {
-        "operation": "createCollection",
-        "collectionName": "={{ $('Loop Over Job Titles').item.json.collection }}",
-        "vectors": "{\n  \"size\": 768,\n  \"distance\": \"Cosine\"\n}",
-        "onDiskPayload": true,
-        "requestOptions": {}
-      },
-      "type": "n8n-nodes-qdrant.qdrant",
-      "typeVersion": 1,
-      "position": [
-        864,
-        336
-      ],
-      "id": "15a8ca86-406b-446a-883c-ad8e36c8a3e7",
-      "name": "Create Collection Job Titles",
-      "credentials": {
-        "qdrantRestApi": {
-          "id": "KAWrCuqm53MQlcHX",
-          "name": "Qdrant account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "operation": "createCollection",
-        "collectionName": "={{ $('Loop Over Locations').item.json.collection }}",
-        "vectors": "{\n  \"size\": 768,\n  \"distance\": \"Cosine\"\n}",
-        "onDiskPayload": true,
-        "requestOptions": {}
-      },
-      "type": "n8n-nodes-qdrant.qdrant",
-      "typeVersion": 1,
-      "position": [
-        864,
-        1008
-      ],
-      "id": "0819a7d8-2ef0-4821-9867-e19a7bf7676e",
-      "name": "Create Collection Locations",
-      "credentials": {
-        "qdrantRestApi": {
-          "id": "KAWrCuqm53MQlcHX",
-          "name": "Qdrant account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "operation": "createCollection",
-        "collectionName": "={{ $('Loop Over Tags').item.json.collection }}",
-        "vectors": "{\n  \"size\": 768,\n  \"distance\": \"Cosine\"\n}",
-        "onDiskPayload": true,
-        "requestOptions": {}
-      },
-      "type": "n8n-nodes-qdrant.qdrant",
-      "typeVersion": 1,
-      "position": [
-        1008,
-        1680
-      ],
-      "id": "3794df73-4efb-4037-b9c7-b3d9197af8e1",
-      "name": "Create Collection Tags",
-      "credentials": {
-        "qdrantRestApi": {
-          "id": "KAWrCuqm53MQlcHX",
-          "name": "Qdrant account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "resource": "point",
-        "operation": "upsertPoints",
-        "collectionName": {
-          "__rl": true,
-          "value": "={{ $json.collection }}",
-          "mode": "name"
-        },
-        "points": "=[\n  {\n    \"id\": {{ $json.id }},\n    \"vector\": [{{ Object.values($json.vector) }}],\n    \"payload\": {\n      \"text\": \"{{ $json.payload.text }}\",\n      \"tipo\": \"{{ $json.payload.tipo }}\"\n    }\n  }\n]",
-        "requestOptions": {}
-      },
-      "type": "n8n-nodes-qdrant.qdrant",
-      "typeVersion": 1,
-      "position": [
-        1376,
-        400
-      ],
-      "id": "8a73dd40-6828-499c-b4f8-136f1b5887de",
-      "name": "Upsert Points Job",
-      "credentials": {
-        "qdrantRestApi": {
-          "id": "KAWrCuqm53MQlcHX",
-          "name": "Qdrant account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "resource": "point",
-        "operation": "upsertPoints",
-        "collectionName": {
-          "__rl": true,
-          "value": "={{ $json.collection }}",
-          "mode": "name"
-        },
-        "points": "=[\n  {\n    \"id\": {{ $json.id }},\n    \"vector\": [{{ Object.values($json.vector) }}],\n    \"payload\": {\n      \"text\": \"{{ $json.payload.text }}\",\n      \"tipo\": \"{{ $json.payload.tipo }}\"\n    }\n  }\n]",
-        "requestOptions": {}
-      },
-      "type": "n8n-nodes-qdrant.qdrant",
-      "typeVersion": 1,
-      "position": [
-        1376,
-        1072
-      ],
-      "id": "23eef0f6-3174-40d9-9449-d41e0b6e923f",
-      "name": "Upsert Points Location",
-      "credentials": {
-        "qdrantRestApi": {
-          "id": "KAWrCuqm53MQlcHX",
-          "name": "Qdrant account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "resource": "point",
-        "operation": "upsertPoints",
-        "collectionName": {
-          "__rl": true,
-          "value": "={{ $json.collection }}",
-          "mode": "name"
-        },
-        "points": "=[\n  {\n    \"id\": {{ $json.id }},\n    \"vector\": [{{ Object.values($json.vector) }}],\n    \"payload\": {\n      \"text\": \"{{ $json.payload.text }}\",\n      \"tipo\": \"{{ $json.payload.tipo }}\"\n    }\n  }\n]",
-        "requestOptions": {}
-      },
-      "type": "n8n-nodes-qdrant.qdrant",
-      "typeVersion": 1,
-      "position": [
-        1376,
-        1744
-      ],
-      "id": "c9ba5d0c-f35a-4c06-8c09-acd8622fdfbb",
-      "name": "Upsert Points Tags",
-      "credentials": {
-        "qdrantRestApi": {
-          "id": "KAWrCuqm53MQlcHX",
-          "name": "Qdrant account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "jsCode": "const items = $input.all();\n\nfunction normalizeText(str) {\n  return str\n    .toLowerCase()\n    .normalize('NFD')\n    .replace(/[\\u0300-\\u036f]/g, '') // quita tildes\n    .trim();\n}\n\nreturn items.map(item => {\n  const arr = item.json.text_to_embed || [];\n  const text = Array.isArray(arr) ? arr.join(' ') : arr;\n  return {\n    json: {\n      ...item.json,\n      text_to_embed: normalizeText(text)\n    }\n  };\n});"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        32,
-        1536
-      ],
-      "id": "14f9f748-0d31-4099-bcbf-5fc6c688ca2a",
-      "name": "Fix Array Tags"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "http://ml_service:8008/centroids/save",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "x-api-key",
-              "value": "muddan-nuvvuh-7zyvhY"
-            }
-          ]
-        },
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "collection",
-              "value": "={{ $('Calculate Job Clusters').item.json.collection }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        752,
-        0
-      ],
-      "id": "e9014640-e721-47ce-bf33-c005104a7214",
-      "name": "Create Job Centroid"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "http://ml_service:8008/centroids/save",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "x-api-key",
-              "value": "muddan-nuvvuh-7zyvhY"
-            }
-          ]
-        },
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "collection",
-              "value": "={{ $('Calculate Location Clusters').item.json.collection }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        752,
-        656
-      ],
-      "id": "b5ab13c8-b2c4-4bea-80cf-3a9e7e8e3c67",
-      "name": "Create Location Centroid"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "http://ml_service:8008/centroids/save",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "x-api-key",
-              "value": "muddan-nuvvuh-7zyvhY"
-            }
-          ]
-        },
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "collection",
-              "value": "={{ $('Calculate Tags Clusters').item.json.collection }}"
+              "name": "=url",
+              "value": "={{ $json.url }}"
             },
             {
-              "name": "n_clusters",
-              "value": "={{ $json.suggested_k }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        752,
-        1344
-      ],
-      "id": "62ebf6fd-f535-4acd-bd22-9ce93fd1f277",
-      "name": "Create Tags Centroid"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "http://ml_service:8008/clusters/suggest",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "x-api-key",
-              "value": "muddan-nuvvuh-7zyvhY"
-            }
-          ]
-        },
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "collection",
-              "value": "={{ $('Get job_title').item.json.collection }}"
+              "name": "cmd",
+              "value": "request.get"
             }
           ]
         },
@@ -713,193 +67,559 @@
       "typeVersion": 4.2,
       "position": [
         0,
-        0
+        208
       ],
-      "id": "e0b7f9ec-451b-4f95-a48a-c799d2aa431c",
-      "name": "Calculate Job Clusters",
-      "executeOnce": true
+      "id": "44f0ef6f-bd1b-4c7e-ba87-f7963ec50ff5",
+      "name": "Get Main Page"
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "http://ml_service:8008/clusters/create",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "x-api-key",
-              "value": "muddan-nuvvuh-7zyvhY"
-            }
-          ]
-        },
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "collection",
-              "value": "={{ $json.collection }}"
-            },
-            {
-              "name": "n_clusters",
-              "value": "={{ $json.suggested_k }}"
-            }
-          ]
-        },
+        "model": "gpt-oss:20b",
         "options": {}
       },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
+      "type": "@n8n/n8n-nodes-langchain.lmOllama",
+      "typeVersion": 1,
       "position": [
         352,
+        416
+      ],
+      "id": "c2e19874-d537-4584-b756-65173a9125e9",
+      "name": "Ollama Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "NlpR47XMW1FAbdCz",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const totalPages = Math.ceil(($input.first().json.output.total_jobs/$('Get Websites').first().json.jobs_per_page));\nconst pattern = $('Get Websites').first().json.pagination_pattern;\nconst urls = [];\nfor (let i = 1; i <= totalPages; i++) {\n  urls.push(pattern.replace(\"{page}\", i));\n}\nreturn { ...$json, pagination_urls: urls };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        656,
+        208
+      ],
+      "id": "c7887bff-6546-41b2-b81a-2e7c1ee01341",
+      "name": "Generate ULRs"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "dataPropertyName": "html",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "url",
+              "cssSelector": "={{ $('Get Websites').item.json.link_selector }}",
+              "returnValue": "attribute",
+              "attribute": "href",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        192,
+        560
+      ],
+      "id": "e2b49402-adf0-4f10-8ee6-7ff24d93eeac",
+      "name": "Get Link By CSS Selector"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://compass_scraper_service:8000/flaresolver",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "muddan-nuvvuh-7zyvhY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json.pagination_urls }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        560
+      ],
+      "id": "5840c54d-7db1-4a1e-ae68-0943422aadff",
+      "name": "Get Search Page"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "dataPropertyName": "solution.response",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "clean_text",
+              "cssSelector": "={{ $('Loop Over Websites').item.json.total_results_selector }}",
+              "returnValue": "html"
+            }
+          ]
+        },
+        "options": {
+          "cleanUpText": true
+        }
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        176,
+        208
+      ],
+      "id": "e8aec83a-3a01-4730-96f6-4657d60105d1",
+      "name": "Get Total Selector"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "url",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        416,
+        560
+      ],
+      "id": "fbe8bb36-c158-4e58-b623-fca7fb9cd4ad",
+      "name": "Split URLs"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "pagination_urls",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        896,
+        208
+      ],
+      "id": "71b6b4d5-d888-4544-b7ea-02ac30410821",
+      "name": "Split Paginations"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 🔸 Define el dominio base dinámico\nconst baseUrl = $('Get Websites').first().json.link_pattern;  \n\n// 🔸 Set para eliminar duplicados al final\nconst normalizedUrls = new Set();\n\n// 🔸 Recorremos todos los items que llegan al nodo\nfor (const item of items) {\n  let url = item.json.url.trim();\n\n  // Si ya viene completa (http...), la dejamos igual\n  if (url.startsWith('http')) {\n    normalizedUrls.add(url);\n    continue;\n  }\n\n  // Si es relativa (ej. /co/ofertas...), concatenamos con baseUrl\n  // Removemos posibles slashes duplicados\n  let finalUrl = `${baseUrl.replace(/\\/$/, '')}/${url.replace(/^\\//, '')}`;\n  normalizedUrls.add(finalUrl);\n}\n\n// 🔸 Convertimos el Set a array de objetos para seguir el flujo n8n\nreturn Array.from(normalizedUrls).map(url => ({ json: { url } }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        576,
+        560
+      ],
+      "id": "20ee6934-e442-4997-97e3-6dd62a6586c8",
+      "name": "Fix Jobs URLs"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://compass_scraper_service:8000/scrape",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "muddan-nuvvuh-7zyvhY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $('Loop Over Job Page').item.json.url }}"
+            },
+            {
+              "name": "max_depth",
+              "value": "0"
+            },
+            {
+              "name": "category",
+              "value": "2"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        432,
+        848
+      ],
+      "id": "dcde41ea-a4c6-4cb8-9db8-7e6dd9d69c5c",
+      "name": "Get Job Page",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT COUNT(1) FROM job_pages_raw WHERE url = '{{ $json.url }}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        112,
+        848
+      ],
+      "id": "eba45971-00a8-4384-b50a-6c1ddda1fdc0",
+      "name": "URL Verification",
+      "executeOnce": false,
+      "credentials": {
+        "postgres": {
+          "id": "QGoF20Ra74CRgkVh",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.count }}",
+                    "rightValue": "0",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "659debeb-fd85-486a-9538-8e280be0c250"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "08b7f07b-8646-4255-9bb1-0749236c6b3b",
+                    "leftValue": "={{ $json.count }}",
+                    "rightValue": "1",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        272,
+        1088
+      ],
+      "id": "61f1add4-6ae5-47ba-bc9f-1f28f880424e",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -208,
+        544
+      ],
+      "id": "f7db4d1d-c0ee-4639-a8a4-f5b1f41723d7",
+      "name": "Loop Over Search Pages"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -160,
+        832
+      ],
+      "id": "77b7b043-c045-4496-87cc-de5e19a9c10d",
+      "name": "Loop Over Job Page"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -192,
+        192
+      ],
+      "id": "5f774721-fee7-4058-9f50-f98ec3359a27",
+      "name": "Loop Over Websites"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT job_pages_raw.id, websites.domain, job_pages_raw.html,\n  job_data_selector, job_detail_selector, job_pages_raw.url\n  FROM job_pages_raw \n  INNER JOIN websites ON job_pages_raw.website_id = websites.id\n  INNER JOIN website_config ON website_config.website_id = websites.id\n  WHERE job_pages_raw.url = '{{ $json.url }}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        640,
+        848
+      ],
+      "id": "5dd279e9-d9d6-448b-8152-77c2c89ed9bd",
+      "name": "Ger Raw Html",
+      "credentials": {
+        "postgres": {
+          "id": "QGoF20Ra74CRgkVh",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "dataPropertyName": "html",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "job_data",
+              "cssSelector": "={{ $json.job_data_selector }}",
+              "returnArray": true
+            },
+            {
+              "key": "jod_detail",
+              "cssSelector": "={{ $json.job_detail_selector }}",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        832,
+        848
+      ],
+      "id": "1b6a3393-c571-4128-a50b-c3dcce2c338c",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Eres un extractor determinista.  \nDevuelve UN JSON válido que siga EXACTAMENTE este esquema:\n\n{\n  \"job_title\": \"\",\n  \"company\": \"\",\n  \"location\": \"\",\n  \"salary\": \"\",\n  \"posted_at\": \"\",\n  \"tags\": [],\n  \"description\": \"\"\n}\n\n⚠️ Reglas:\n- Copia literalmente los valores cuando existan. No inventes.\n- Si no encuentras un campo, deja \"\" (o [] para tags).\n- \"posted_at\" debe ir en formato YYYY-MM-DD. Si ves fechas tipo \"Publicado 16 Oct 2025\", conviértelas. Si no hay fecha clara, usa \"1900-01-01\".\n- No uses markdown, code fences, texto adicional ni claves extra en el JSON.\n- Si el JSON que generas esta vacio o falla la validacion del esquema intentalo extraer de nuevo la informacion.\n\nTEXTO DE ENTRADA (delimitado):\n<JOB_DETAIL>\n{{ $json.input_text }}\n</JOB_DETAIL>",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1264,
+        848
+      ],
+      "id": "c03ad15b-77c1-4ebe-a612-8d33b20f97aa",
+      "name": "Basic LLM Set Job Info",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Eres un agente especializado en analizar HTML y extraer información estructurada.\n\nTu tarea es leer el HTML y construir un JSON con:\n- total_jobs → número total de ofertas\n\n⚠️ Devuelve estrictamente un JSON con este formato:\n{\n  \"total_jobs\": number\n}\n\n{{ $('Get Websites').item.json.description }}\n\n❌ No devuelvas texto adicional ni comentarios. Solo el JSON.\n⚠️ Si el JSON esta vacio reintenta generarlo.\n\nEste es el HTML:\n{{ $json.clean_text }}",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        352,
+        208
+      ],
+      "id": "dd533b6d-ee3f-43af-80c5-fb5bed49e855",
+      "name": "Basic LLM Get Total Jobs"
+    },
+    {
+      "parameters": {
+        "model": "gpt-oss:20b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        1248,
+        1088
+      ],
+      "id": "09f33dd6-64fc-4a62-b616-995199f02f42",
+      "name": "Ollama Chat Model1",
+      "credentials": {
+        "ollamaApi": {
+          "id": "NlpR47XMW1FAbdCz",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO job_records_structured (\n  page_id, domain, job_title, company, location, salary,\n  posted_at, tags, description, extracted_at, updated_at\n)\nVALUES (\n  '{{ $('Ger Raw Html').item.json.id }}',\n  '{{ $('Ger Raw Html').item.json.domain }}',\n  '{{ $json.job_title }}',\n  '{{ $json.company }}',\n  '{{ $json.location }}',\n  '{{ $json.salary }}',\n  '{{ $json.posted_at }}',\n  '{{ JSON.stringify($json.tags) }}',\n  '{{ $json.description }}',\n  NOW(), \n  NOW())\nON CONFLICT (page_id) DO UPDATE\nSET\n  domain = EXCLUDED.domain,\n  job_title = EXCLUDED.job_title,\n  company = EXCLUDED.company,\n  location = EXCLUDED.location,\n  salary = EXCLUDED.salary,\n  posted_at = EXCLUDED.posted_at,\n  tags = EXCLUDED.tags,\n  description = EXCLUDED.description,\n  updated_at = NOW()\nRETURNING page_id AS id;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1808,
+        848
+      ],
+      "id": "83d2774e-cca2-49bb-bf6f-44fc748ac590",
+      "name": "Insert Job Data",
+      "credentials": {
+        "postgres": {
+          "id": "QGoF20Ra74CRgkVh",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nfunction coerceToObject(any) {\n  if (any && typeof any === 'object') return any;\n  if (typeof any === 'string') {\n    const cleaned = any.replace(/^```json|^```|```$/g, '').trim();\n    try { return JSON.parse(cleaned); } catch (e) {}\n  }\n  return {};\n}\n\nfunction escapeQuotes(text) {\n  if (!text || typeof text !== 'string') return '';\n  return text.replace(/'/g, \"''\").trim();\n}\n\nfunction normalizeArray(value) {\n  if (!value || value === null) return [\"General\"];\n  if (Array.isArray(value) && value.length > 0) {\n    return value.map(v => escapeQuotes(v.trim()));\n  }\n\n  if (typeof value === 'string') {\n    const arr = value\n      .split(',')\n      .map(s => escapeQuotes(s.trim()))\n      .filter(s => s.length > 0);\n    return arr.length > 0 ? arr : [\"General\"];\n  }\n\n  return [\"General\"];\n}\n\nfunction normalizeText(desc) {\n  if (!desc || typeof desc !== 'string' || desc.trim() === \"\") {\n    return \"Sin descripción disponible.\";\n  }\n\n  return desc\n    .replace(/'/g, \"''\")          // Escapa comillas simples\n    .replace(/[\\r\\n]+/g, ' ')     // Reemplaza saltos de línea\n    .replace(/\\s+/g, ' ')         // Colapsa espacios múltiples\n    .trim();\n}\n\n// Valores por defecto si vienen vacíos\nconst DEFAULTS = {\n  job_title: \"Título no especificado\",\n  company: \"Compañía no especificada\",\n  location: \"Ubicación no especificada\",\n  salary: \"Salario no especificado\",\n  posted_at: \"1900-01-01\",\n  tags: [\"General\"],\n  description: \"Sin descripción disponible.\"\n};\n\nconst out = items.map(item => {\n  // Obtener la salida generada por el LLM\n  let src = item.json?.output ?? item.json?.result ?? item.json?.text ?? item.json ?? {};\n  src = coerceToObject(src);\n\n  // Datos base del sitio\n  const pageData = $('Loop Over Job Page').first().json;\n\n  const base = {\n    id: escapeQuotes(pageData.id?.toString() || ''),\n    domain: escapeQuotes(pageData.domain || ''),\n    url: escapeQuotes(pageData.url || ''),\n    job_title: escapeQuotes(src.job_title?.trim() || DEFAULTS.job_title),\n    company: escapeQuotes(src.company?.trim() || DEFAULTS.company),\n    location: escapeQuotes(src.location?.trim() || DEFAULTS.location),\n    salary: escapeQuotes(src.salary?.trim() || DEFAULTS.salary),\n    posted_at: escapeQuotes(src.posted_at?.trim() || DEFAULTS.posted_at),\n    tags: normalizeArray(src.tags),\n    description: normalizeText(src.description)\n  };\n\n  return { json: base };\n});\n\nreturn out;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1600,
+        848
+      ],
+      "id": "dcfcbbce-e26f-4599-abda-34b1889b4026",
+      "name": "Fix Job Data"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nfunction cleanText(text) {\n  if (!text) return '';\n  return text\n    .replace(/\\\\n/g, ' ')\n    .replace(/\\s+/g, ' ')\n    .replace(/\\t/g, ' ')\n    .trim();\n}\n\nreturn items.map(item => {\n  const job = cleanText(item.json.job_data?.[0]);\n  const detail = cleanText(item.json.jod_detail?.[0] || item.json.job_detail?.[0]);\n  return {\n    json: {\n      input_text: `${job}\\n\\n${detail}`\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        848
+      ],
+      "id": "676bf501-3784-4b2d-9f8b-ba20b92dc09e",
+      "name": "Clean Text"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"total_jobs\": \"number\",\n  \"jobs_per_page\": \"number\",\n  \"total_pages\": \"number\",\n  \"pagination_pattern\": \"string\",\n  \"pagination_urls\": [\"string\"]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        496,
+        400
+      ],
+      "id": "67281a5e-2c7b-49a6-b4c6-80ee69f67972",
+      "name": "Structured Output Total Jobs"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"job_title\": \"string\",\n  \"company\": \"string\",\n  \"location\": \"string\",\n  \"salary\": \"string\",\n  \"posted_at\": \"string\",\n  \"tags\": [\"string\"],\n  \"description\": \"string\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1424,
+        1088
+      ],
+      "id": "ad6432de-fac3-4bee-9f4d-a547d2fd126f",
+      "name": "Structured Output Job Detail"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                6
+              ],
+              "triggerAtHour": 22
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -848,
+        16
+      ],
+      "id": "74663516-a493-48eb-8724-bbdb2c9abe5a",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "fPjwvT2VUwedD9pq",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/fPjwvT2VUwedD9pq",
+          "cachedResultName": "Fix Jobs Data"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {}
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        0,
         0
       ],
-      "id": "7307563f-05e0-4d87-9e38-cc9e69c972ac",
-      "name": "Create Job Clusters",
-      "executeOnce": true
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "http://ml_service:8008/clusters/suggest",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "x-api-key",
-              "value": "muddan-nuvvuh-7zyvhY"
-            }
-          ]
-        },
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "collection",
-              "value": "={{ $('Get location').item.json.collection }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        32,
-        656
-      ],
-      "id": "aaad1ebe-37bd-4dca-8579-6000744eab1a",
-      "name": "Calculate Location Clusters",
-      "executeOnce": true
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "http://ml_service:8008/clusters/create",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "x-api-key",
-              "value": "muddan-nuvvuh-7zyvhY"
-            }
-          ]
-        },
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "collection",
-              "value": "={{ $json.collection }}"
-            },
-            {
-              "name": "n_clusters",
-              "value": "={{ $json.suggested_k }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        384,
-        656
-      ],
-      "id": "bead8bcc-8a34-403e-94a8-3c427a121fe0",
-      "name": "Create Location Clusters",
-      "executeOnce": true
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "http://ml_service:8008/clusters/suggest",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "x-api-key",
-              "value": "muddan-nuvvuh-7zyvhY"
-            }
-          ]
-        },
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "collection",
-              "value": "={{ $('Get tags').item.json.collection }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        32,
-        1344
-      ],
-      "id": "23190c69-6aee-4aa2-a268-9bd3f9e97d6b",
-      "name": "Calculate Tags Clusters",
-      "executeOnce": true
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "http://ml_service:8008/clusters/create",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "x-api-key",
-              "value": "muddan-nuvvuh-7zyvhY"
-            }
-          ]
-        },
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "collection",
-              "value": "={{ $json.collection }}"
-            },
-            {
-              "name": "n_clusters",
-              "value": "={{ $json.suggested_k }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        384,
-        1344
-      ],
-      "id": "6151b10f-1467-4fac-89d3-16e56f0a62ca",
-      "name": "Create Tags Clusters",
-      "executeOnce": true
+      "id": "fb8ccaee-8459-41ba-bf10-427a110ea022",
+      "name": "Call 'Fix Jobs Data'"
     }
   ],
   "pinData": {},
@@ -908,400 +628,321 @@
       "main": [
         [
           {
-            "node": "Get job_title",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Get location",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Get tags",
+            "node": "Get Websites",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Get job_title": {
+    "Get Websites": {
       "main": [
         [
           {
-            "node": "Loop Over Job Titles",
+            "node": "Loop Over Websites",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Loop Over Job Titles": {
+    "Get Main Page": {
       "main": [
         [
           {
-            "node": "Calculate Job Clusters",
+            "node": "Get Total Selector",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Get Total Jobs",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate ULRs": {
+      "main": [
+        [
+          {
+            "node": "Split Paginations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Search Page": {
+      "main": [
+        [
+          {
+            "node": "Get Link By CSS Selector",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Total Selector": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Get Total Jobs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split URLs": {
+      "main": [
+        [
+          {
+            "node": "Fix Jobs URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Paginations": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Search Pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fix Jobs URLs": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Job Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Job Page": {
+      "main": [
+        [
+          {
+            "node": "Ger Raw Html",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "URL Verification": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Get Job Page",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Get Job Embeding",
+            "node": "Loop Over Job Page",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "If": {
+    "Loop Over Search Pages": {
       "main": [
         [
           {
-            "node": "Upsert Points Job",
+            "node": "Loop Over Websites",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Create Collection Job Titles",
+            "node": "Get Search Page",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "If1": {
+    "Loop Over Job Page": {
       "main": [
         [
           {
-            "node": "Upsert Points Location",
+            "node": "Loop Over Search Pages",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Create Collection Locations",
+            "node": "URL Verification",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "If2": {
+    "Loop Over Websites": {
       "main": [
         [
           {
-            "node": "Upsert Points Tags",
+            "node": "Call 'Fix Jobs Data'",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Create Collection Tags",
+            "node": "Get Main Page",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Get tags": {
+    "Ger Raw Html": {
       "main": [
         [
           {
-            "node": "Loop Over Tags",
+            "node": "HTML",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Get location": {
+    "HTML": {
       "main": [
         [
           {
-            "node": "Loop Over Locations",
+            "node": "Clean Text",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Get Job Embeding": {
+    "Basic LLM Set Job Info": {
       "main": [
         [
           {
-            "node": "Check If Collection Jobs Titles Exists",
+            "node": "Fix Job Data",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Get Location Embeding": {
+    "Basic LLM Get Total Jobs": {
       "main": [
         [
           {
-            "node": "Check If Collection Locations Exists",
+            "node": "Generate ULRs",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Get Tags Embeding": {
+    "Ollama Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Set Job Info",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Job Data": {
       "main": [
         [
           {
-            "node": "Check If Collection Tags Exists",
+            "node": "Loop Over Job Page",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Loop Over Locations": {
+    "Fix Job Data": {
       "main": [
         [
           {
-            "node": "Calculate Location Clusters",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Get Location Embeding",
+            "node": "Insert Job Data",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Loop Over Tags": {
+    "Clean Text": {
       "main": [
         [
           {
-            "node": "Calculate Tags Clusters",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Fix Array Tags",
+            "node": "Basic LLM Set Job Info",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Check If Collection Jobs Titles Exists": {
-      "main": [
+    "Structured Output Total Jobs": {
+      "ai_outputParser": [
         [
           {
-            "node": "Fix Job Payload",
-            "type": "main",
+            "node": "Basic LLM Get Total Jobs",
+            "type": "ai_outputParser",
             "index": 0
           }
         ]
       ]
     },
-    "Check If Collection Locations Exists": {
-      "main": [
+    "Structured Output Job Detail": {
+      "ai_outputParser": [
         [
           {
-            "node": "Fix Location Payload",
-            "type": "main",
+            "node": "Basic LLM Set Job Info",
+            "type": "ai_outputParser",
             "index": 0
           }
         ]
       ]
     },
-    "Check If Collection Tags Exists": {
+    "Schedule Trigger": {
       "main": [
         [
           {
-            "node": "Fix Tags Payload",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Fix Job Payload": {
-      "main": [
-        [
-          {
-            "node": "If",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Fix Location Payload": {
-      "main": [
-        [
-          {
-            "node": "If1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Fix Tags Payload": {
-      "main": [
-        [
-          {
-            "node": "If2",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Create Collection Job Titles": {
-      "main": [
-        [
-          {
-            "node": "Upsert Points Job",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Create Collection Locations": {
-      "main": [
-        [
-          {
-            "node": "Upsert Points Location",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Create Collection Tags": {
-      "main": [
-        [
-          {
-            "node": "Upsert Points Tags",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Upsert Points Job": {
-      "main": [
-        [
-          {
-            "node": "Loop Over Job Titles",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Upsert Points Location": {
-      "main": [
-        [
-          {
-            "node": "Loop Over Locations",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Upsert Points Tags": {
-      "main": [
-        [
-          {
-            "node": "Loop Over Tags",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Fix Array Tags": {
-      "main": [
-        [
-          {
-            "node": "Get Tags Embeding",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Calculate Job Clusters": {
-      "main": [
-        [
-          {
-            "node": "Create Job Clusters",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Create Job Clusters": {
-      "main": [
-        [
-          {
-            "node": "Create Job Centroid",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Calculate Location Clusters": {
-      "main": [
-        [
-          {
-            "node": "Create Location Clusters",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Create Location Clusters": {
-      "main": [
-        [
-          {
-            "node": "Create Location Centroid",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Calculate Tags Clusters": {
-      "main": [
-        [
-          {
-            "node": "Create Tags Clusters",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Create Tags Clusters": {
-      "main": [
-        [
-          {
-            "node": "Create Tags Centroid",
+            "node": "Get Websites",
             "type": "main",
             "index": 0
           }
@@ -1313,11 +954,11 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "70fa5a07-83a4-4b53-95ed-df381f103735",
+  "versionId": "0b9324b4-33c8-40b0-9ad7-5d851988c82c",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "ace676532ce958726b0c4ffedc40ba8ecf285de3dec650ceeb8e8d1bd3844dec"
+    "instanceId": "2e3b0a5f443db6941000335ed602e7f66865ee808a7567a89444158e7e72c88e"
   },
-  "id": "U1x0NDufOcmfiG8f",
+  "id": "MmUgyuSsBujHMKzp",
   "tags": []
 }

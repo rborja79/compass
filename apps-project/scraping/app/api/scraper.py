@@ -50,7 +50,7 @@ def proxy_to_flaresolver(request: dict):
     """
     📡 Endpoint para redirigir una solicitud a FlareSolverr desde tu propio contenedor.
     """
-    flaresolverr_url = os.getenv("FLARESOLVERR_URL", "http://trended_flaresolverr:8191/v1")
+    flaresolverr_url = os.getenv("FLARESOLVERR_URL", "http://compass_flaresolverr:8191/v1")
 
     try:
         # Reenviamos el body al FlareSolverr

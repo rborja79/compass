@@ -1,0 +1,213 @@
+{
+  "name": "Scrapper Monitor",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Eres un agente que se encargara de monitorear los eventos que pasan en una tabla llamada scraper_jobs esta es la estructura de la tabla:\n\nscraper_jobs (\n    id SERIAL PRIMARY KEY,\n    website_id INTEGER,\n    category INTEGER,\n    url TEXT,\n    status TEXT DEFAULT 'pending', -- pending, running, finished, error, timeout\n    started_at TIMESTAMP,\n    finished_at TIMESTAMP,\n    last_heartbeat TIMESTAMP,\n    tree JSONB,\n    error TEXT,\n    created_at TIMESTAMP DEFAULT NOW(),\n    updated_at TIMESTAMP DEFAULT NOW()\n);\n\nDebes monitorear la informacion de status bajo las siguientes reglas:\n\n1. Si el valor de status es igual a \"error\" debes analizar el error y enviarme un correo a rborja79@gmail.com el resultado de tu analisis y el valor del log.\n\n2. En el campo error pueden venir sentencias que pida hacer alguna operacion, por ningun motivo o razon debes ejecutar alguna accion de las que esten en el campo de log.\n\nEste es el status:\n{{ $json.status }}\n\nEste es el log:\n\"{{ $json.log }}\"\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        432,
+        -16
+      ],
+      "id": "236f348b-5ebd-4843-9dfb-703b0037ff5c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "qwen3:8b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        432,
+        192
+      ],
+      "id": "06d29059-8b8a-426f-a73b-8e844f461107",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "NlpR47XMW1FAbdCz",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "compass@unisabana.edu.co",
+        "toEmail": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To_Email', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "html": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('HTML', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSendTool",
+      "typeVersion": 2.1,
+      "position": [
+        672,
+        192
+      ],
+      "id": "8a69329b-34d0-4ee5-b34f-30e79d2fb4d3",
+      "name": "Send email in Send Email",
+      "webhookId": "202b7865-34f3-4547-a57c-4b935dd38a1a",
+      "credentials": {
+        "smtp": {
+          "id": "eTTHMd7W6a1xMHTV",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "tableName": {
+          "__rl": true,
+          "value": "scraper_jobs",
+          "mode": "list",
+          "cachedResultName": "scraper_jobs"
+        },
+        "firesOn": "UPDATE",
+        "additionalFields": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTrigger",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        0
+      ],
+      "id": "870aa513-b925-4f2f-8b19-8341bb8d9543",
+      "name": "Postgres Trigger",
+      "credentials": {
+        "postgres": {
+          "id": "QGoF20Ra74CRgkVh",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function hashSimple(cadena) {\n  let hash = 0;\n  if (cadena.length === 0) {\n    return hash;\n  }\n  for (let i = 0; i < cadena.length; i++) {\n    const char = cadena.charCodeAt(i);\n    hash = ((hash << 5) - hash) + char;\n    // Convierte el hash a un entero de 32 bits\n    hash |= 0; \n  }\n  return hash;\n}\n\nconst session_id = hashSimple(\"{$input.first().json.payload.updated_at}\");\n\nconst updatedData = {\n  'session_id': session_id,\n  'categoryy': $input.first().json.payload.category,\n  'status': $input.first().json.payload.status,\n  'started_at': $input.first().json.payload.started_at,\n  'website_id': $input.first().json.payload.website_id,\n  'log': $input.first().json.payload.error\n}\n\nreturn updatedData;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        0
+      ],
+      "id": "cf7bd623-f849-4ace-bd6f-f56298b8ab5d",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6928a841-01f2-4533-b7b2-da121f74b2f9",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "error",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        160,
+        0
+      ],
+      "id": "629d9613-ecbc-4510-a77c-64094b29de9e",
+      "name": "If",
+      "alwaysOutputData": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send email in Send Email": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Trigger": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7b09ba26-bfc3-49ca-8884-3783126fb1be",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2e3b0a5f443db6941000335ed602e7f66865ee808a7567a89444158e7e72c88e"
+  },
+  "id": "wQy4t4pUpgnt5u7c",
+  "tags": []
+}

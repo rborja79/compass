@@ -9,57 +9,45 @@ services:
     volumes:
       - compass_n8n_data:/home/node/.n8n
       - ${PROJECT_PATH}/apps-project/n8n/shared:/data/uploads
-      - ${PROJECT_PATH}/apps-project/n8n/workflows:/workflows
     environment:
       DB_TYPE: postgresdb
       DB_POSTGRESDB_HOST: compass_n8n_postgres_db
       DB_POSTGRESDB_DATABASE: n8n_database
-      DB_POSTGRESDB_USER: n8n
-      DB_POSTGRESDB_PASSWORD: yxor-andy-pznc-hnyc
-      GENERIC_TIMEZONE: "America/Bogota"
-      # Usuario por defecto
-      N8N_OWNER_EMAIL: "compass@unisabana.edu.co"
-      N8N_OWNER_PASSWORD: "yxor-andy-pznc-hnyc"
-      N8N_OWNER_FIRST_NAME: "Compass"
-      N8N_OWNER_LAST_NAME: "Admin"
-      # Importar workflows automáticamente
-      N8N_IMPORT_WORKFLOW_PATH: "/workflows"
-      # Basic Auth para webhooks
-      N8N_BASIC_AUTH_ACTIVE: "true"
-      N8N_BASIC_AUTH_USER: "compass"
-      N8N_BASIC_AUTH_PASSWORD: "yxor-andy-pznc-hnyc"
+      DB_POSTGRESDB_USER: postgres
+      DB_POSTGRESDB_PASSWORD: "yxor-andy-pznc-hnyc"
     depends_on:
       - compass_n8n_postgres_db
     networks:
       - compass-network
 
   compass_n8n_postgres_db:
-    image: postgres:latest
+    image: postgres:18
     platform: linux/arm64
     container_name: compass_n8n_postgres_db
     restart: unless-stopped
     environment:
       POSTGRES_DB: n8n_database
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: yxor-andy-pznc-hnyc
+      POSTGRES_PASSWORD: "yxor-andy-pznc-hnyc"
     volumes:
-      - compass_n8n_postgres_data:/var/lib/postgresql/data
+      - compass_n8n_postgres_data:/var/lib/postgresql
     ports:
       - "5433:5432"
     networks:
       - compass-network
 
   compass_postgres_db:
-    image: postgres:latest
+    image: postgres:18
     platform: linux/arm64
     container_name: compass_postgres_db
     restart: unless-stopped
     environment:
       POSTGRES_DB: compass_database
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: yxor-andy-pznc-hnyc
+      POSTGRES_PASSWORD: "yxor-andy-pznc-hnyc"
+      TZ: "America/Bogota"
     volumes:
-      - compass_postgres_data:/var/lib/postgresql/data
+      - compass_postgres_data:/var/lib/postgresql
     ports:
       - "5434:5432"
     networks:
@@ -72,6 +60,8 @@ services:
     restart: unless-stopped
     ports:
       - "6333:6333"
+    environment:
+      QDRANT__SERVICE__API_KEY: "yxor-andy-pznc-hnyc"
     volumes:
       - compass_qdrant_data:/qdrant/storage
     networks:
@@ -127,46 +117,34 @@ services:
       - ${PROJECT_PATH}/apps-project/machine-learning/logs:/app/logs
 
   compass_app:
-    build:
-      context: ${PROJECT_PATH}/open-webui
-      dockerfile: Dockerfile
+    image: ghcr.io/open-webui/open-webui:main
     platform: linux/arm64
     container_name: compass_app
     restart: unless-stopped
     ports:
       - "3000:8080"
     environment:
-      # Base de datos y vectores
-      VECTOR_DB_URL: "http://compass_qdrant:6333"
-      VECTOR_DB_TYPE: "qdrant"
-      # Autenticación
-      WEBUI_AUTH: "true"
-      WEBUI_SECRET_KEY: "yxor-andy-pznc-hnyc-secret-key"
-      # Usuario por defecto
-      DEFAULT_USER_EMAIL: "compass@unisabana.edu.co"
-      DEFAULT_USER_PASSWORD: "yxor-andy-pznc-hnyc"
-      DEFAULT_USER_FIRST_NAME: "Compass"
-      DEFAULT_USER_LAST_NAME: "Admin"
-      # Integración OpenAI/n8n
-      OPENAI_API_BASE_URL: "http://compass_n8n_workflow:5678/webhook/compass"
-      OPENAI_API_KEY: "yxor-andy-pznc-hnyc"
-      # Configuración general
-      DATA_DIR: /app/backend/data
-      ENABLE_OLLAMA_API: "false"
-      ENABLE_OPENAI_API: "true"
-      # Timezone
       TZ: "America/Bogota"
+
+      WEBUI_AUTH: "true"
+      WEBUI_SECRET_KEY: "yxor-andy-pznc-hnyc"
+
+      WEBUI_NAME: "Compass"
+      DEFAULT_LOCALE: "es"
+
+      VECTOR_DB: "qdrant"
+      QDRANT_URI: "http://compass_qdrant:6333"
+      QDRANT_API_KEY: "yxor-andy-pznc-hnyc"
+      QDRANT_COLLECTION_PREFIX: "compass"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
       - compass_data:/app/backend/data
-      - ${PROJECT_PATH}/apps-project/website:/app/backend
     networks:
       - compass-network
     depends_on:
       - compass_qdrant
       - compass_n8n
-
 networks:
   compass-network:
     external: true
@@ -175,7 +153,6 @@ volumes:
   compass_n8n_data:
   compass_n8n_postgres_data:
   compass_postgres_data:
-  compass_weaviate_data:
   compass_qdrant_data:
   compass_tld_cache:
   compass_data:

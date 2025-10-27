@@ -60,7 +60,7 @@ class BaseScraper:
         website = self.db.query(Website).filter_by(domain=self.base_domain).first()
         self.website_id = website.id if website else None
 
-        self.flaresolverr_url = os.getenv("FLARESOLVERR_URL", "http://trended_flaresolverr:8191/v1")
+        self.flaresolverr_url = os.getenv("FLARESOLVERR_URL", "http://compass_flaresolverr:8191/v1")
         logger.info(f"🕷️ Scraper inicializado para dominio: {self.base_domain}")
 
     # ==========================
@@ -251,7 +251,17 @@ class BaseScraper:
             self.update_job_status("error", str(e))
             logger.error(f"💥 Job {self.job_id} falló: {e}")
         finally:
-            self.db.close()
+            # 🔒 Asegurar que no hay operaciones pendientes antes de cerrar
+            try:
+                if self.db.in_transaction():
+                    self.db.rollback()
+            except Exception as e:
+                logger.warning(f"⚠️ Error al hacer rollback final: {e}")
+            finally:
+                try:
+                    self.db.close()
+                except Exception as e:
+                    logger.warning(f"⚠️ Error al cerrar sesión DB: {e}")
             return self.tree
 
     def scrape(self, url, depth=0, parent=None):
