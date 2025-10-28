@@ -19,23 +19,16 @@ chmod +x setup.sh
 
 # 2. Levantar contenedores
 echo -e "${BLUE}🐳 Paso 2: Levantando contenedores...${NC}"
-docker-compose up -d
-
-# 3. Esperar a que n8n esté listo
-echo -e "${BLUE}⏳ Paso 3: Esperando a que n8n esté listo (30 segundos)...${NC}"
-sleep 30
-
-# 4. Configurar credenciales
-echo -e "${BLUE}🔐 Paso 4: Configurando credenciales en n8n...${NC}"
-chmod +x setup-n8n-credentials.sh
-./setup-n8n-credentials.sh
+docker compose up -d
 
 echo -e "${GREEN}✅ ¡Compass Stack iniciado completamente!${NC}"
 echo ""
-echo -e "${BLUE}Accede a:${NC}"
-echo -e "${GREEN}  🔗 n8n: http://localhost:5678${NC}"
-echo -e "${GREEN}  🔗 Compass: http://localhost:3000${NC}"
+echo -e "${BLUE}Servicios disponibles:${NC}"
+echo -e "${GREEN}   - n8n: http://localhost:5678${NC}"
+echo -e "${GREEN}   - PostgreSQL n8n: localhost:5433${NC}"
+echo -e "${GREEN}   - PostgreSQL Compass: localhost:5434${NC}"
+echo -e "${GREEN}   - Qdrant: http://localhost:6333${NC}"
 echo ""
 echo -e "${BLUE}Credenciales:${NC}"
-echo -e "${GREEN}  📧 Email: compass@unisabana.edu.co${NC}"
-echo -e "${GREEN}  🔑 Password: yxor-andy-pznc-hnyc${NC}"
+echo -e "${GREEN}   Email: compass@unisabana.edu.co${NC}"
+echo -e "${GREEN}   Password: yxor-andy-pznc-hnyc${NC}"

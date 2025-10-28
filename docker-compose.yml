@@ -116,35 +116,34 @@ services:
       - compass_tld_cache:/root/.tldextract
       - ${PROJECT_PATH}/apps-project/machine-learning/logs:/app/logs
 
-  compass_app:
-    image: ghcr.io/open-webui/open-webui:main
+  compass_agent:
+    build:
+      context: ${PROJECT_PATH}/anything-llm
+      dockerfile: docker/Dockerfile
+      args:
+        PLATFORM: linux/arm64
     platform: linux/arm64
-    container_name: compass_app
+    container_name: compass_agent
     restart: unless-stopped
+
     ports:
-      - "3000:8080"
+      - "0.0.0.0:3001:3001"
+
     environment:
-      TZ: "America/Bogota"
+      STORAGE_DIR: "/app/server/storage"
+      PORT: 3001
+      HOST: 0.0.0.0
 
-      WEBUI_AUTH: "true"
-      WEBUI_SECRET_KEY: "yxor-andy-pznc-hnyc"
+    cap_add:
+      - SYS_ADMIN
 
-      WEBUI_NAME: "Compass"
-      DEFAULT_LOCALE: "es"
-
-      VECTOR_DB: "qdrant"
-      QDRANT_URI: "http://compass_qdrant:6333"
-      QDRANT_API_KEY: "yxor-andy-pznc-hnyc"
-      QDRANT_COLLECTION_PREFIX: "compass"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     volumes:
-      - compass_data:/app/backend/data
+      - ${PROJECT_PATH}/apps-project/anythingllm_storage:/app/server/storage
+      - ${PROJECT_PATH}/apps-project/anythingllm_storage/.env:/app/server/.env
+
     networks:
       - compass-network
-    depends_on:
-      - compass_qdrant
-      - compass_n8n
+
 networks:
   compass-network:
     external: true
